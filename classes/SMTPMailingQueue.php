@@ -274,6 +274,10 @@ class SMTPMailingQueue {
 		$phpmailer->Host = $options['host'];
 		$phpmailer->Port = $options['port'] ? $options['port'] : 25;
 
+		// todo: fix me
+		// temporary hard coded fix. should be a setting (and should be logged in case of timeout)
+		$phpmailer->Timeout = 30;
+
 		// Set authentication data
 		if(isset($options['use_authentication'])) {
 			$phpmailer->SMTPAuth = TRUE;
