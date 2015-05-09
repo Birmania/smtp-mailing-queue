@@ -18,6 +18,11 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	private $tabName = 'settings';
 
+	/**
+	 * @var bool Are options already sanitized
+	 */
+	private $optionsSanitized = false;
+
 	public function __construct() {
 		parent::__construct();
 		$this->init();
@@ -139,6 +144,14 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function sanitize($input) {
 		global $smtpMailingQueue;
+
+		// Fix for issue that options are sanitized twice when no db entry exists
+		// "It seems the data is passed through the sanitize function twice.[...]
+		// This should only happen when the option is not yet in the wp_options table."
+		// @see https://codex.wordpress.org/Function_Reference/register_setting#Notes
+		if($this->optionsSanitized)
+			return $input;
+		$this->optionsSanitized =  true;
 
 		$sanitary_values = array();
 		if(isset( $input['queue_limit']))

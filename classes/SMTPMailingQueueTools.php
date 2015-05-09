@@ -297,7 +297,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<td><?php echo $mail['to'] ?></td>
 					<td><?php echo $mail['subject'] ?></td>
 					<td><?php echo nl2br($mail['message']) ?></td>
-					<td><?php echo implode('<br />', $mail['headers']); ?></td>
+					<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
 					<td><?php echo implode('<br />', $mail['attachments']); ?></td>
 				</tr>
 				<?php $i++; ?>
