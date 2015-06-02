@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 4.2
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,12 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.0.3 =
+
+* Feature: Added warning on install if PHP version <5.4
+
+* Bugfix: Use of WordPress URL instead of host name (Thanks to [mgoncharenko](https://github.com/mgoncharenko) for this fix)
 
 = 1.0.2 =
 

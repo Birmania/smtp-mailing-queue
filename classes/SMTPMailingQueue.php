@@ -125,8 +125,8 @@ class SMTPMailingQueue {
 	 */
 	public function getCronLink() {
 		$key = get_option('smtp_mailing_queue_advanced')['process_key'];
-		$protocol = $_SERVER['HTTPS'] == 'on' ? 'https' : 'http';
-		return $protocol.'://'.$_SERVER['HTTP_HOST'] . '?smqProcessQueue&key=' . $key;
+		$wpUrl = get_bloginfo("wpurl");
+		return $wpUrl . '?smqProcessQueue&key=' . $key;
 	}
 
 	/**
