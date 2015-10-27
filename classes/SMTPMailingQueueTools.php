@@ -203,34 +203,8 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @param array $data Testmail data
 	 */
 	protected function reallySendTestmail($data) {
-		require_once ABSPATH . WPINC . '/class-phpmailer.php';
-		require_once ABSPATH . WPINC . '/class-smtp.php';
-
-		$phpmailer = new PHPMailer();
-		$phpmailer->CharSet = get_bloginfo('charset');
-		$phpmailer->AddAddress($data['to']);
-		$phpmailer->Subject = $data['subject'];
-		$phpmailer->Body    = $data['message'];
-
-		// Headers
-		if ($data['headers']) {
-			foreach($data['headers'] as $header) {
-				list($name, $content) = explode(':', $header);
-				switch (strtolower($name)) {
-					case 'cc':
-						$phpmailer->AddCc($content);
-						break;
-					case 'bcc':
-						$phpmailer->AddBcc($content);
-						break;
-				}
-			}
-		}
-
-		global $smtpMailingQueue;
-		$smtpMailingQueue->initMailer($phpmailer);
-
-		if($phpmailer->Send())
+		require_once('SMTPMailingQueueOriginal.php');
+		if(SMTPMailingQueueOriginal::wp_mail($data['to'], $data['subject'], $data['message'], $data['headers']))
 			$this->showNotice('Mail successfully sent.', 'updated');
 		else
 			$this->showNotice('Error sending mail');

@@ -11,7 +11,7 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	/**
 	 * @var string Slug of this tab's settings
 	 */
-	private $optionName = 'smtp_mailing_queue_advanced';
+	public $optionName = 'smtp_mailing_queue_advanced';
 
 	/**
 	 * @var string Name of this tab
@@ -96,6 +96,14 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			'smtp-mailing-queue-advanced',                  // page
 			'settings_section'                              // section
 		);
+
+		add_settings_field(
+			'min_recipients',                               // id
+			'Min. recipients to enqueue',                   // title
+			[$this, 'min_recipients_callback'],             // callback
+			'smtp-mailing-queue-advanced',                  // page
+			'settings_section'                              // section
+		);
 	}
 
 	/**
@@ -122,6 +130,9 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 		if(isset($input['process_key']))
 			$sanitary_values['process_key'] = sanitize_text_field($input['process_key']);
 
+		if(isset($input['min_recipients']))
+			$sanitary_values['min_recipients'] = intval($input['min_recipients']);
+
 		return $sanitary_values;
 	}
 
@@ -143,6 +154,17 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			isset($this->options['queue_limit']) ? esc_attr($this->options['queue_limit']) : ''
 		);
 		echo '<p class="description">Set the amount of mails sent per cronjob processing.</p>';
+	}
+
+	/**
+	 * Prints queue limit field
+	 */
+	public function min_recipients_callback() {
+		printf(
+			'<input class="small-text" type="number" name="' . $this->optionName . '[min_recipients]" id="min_recipients" value="%s">',
+			isset($this->options['min_recipients']) ? esc_attr($this->options['min_recipients']) : ''
+		);
+		echo '<p class="description">Set the amount of recipients required to start queue instead of sending directly.</p>';
 	}
 
 	/**

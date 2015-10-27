@@ -86,7 +86,8 @@ class SMTPMailingQueue {
 			'queue_limit'       => 10,
 			'wpcron_interval'   => 300,
 			'dont_use_wpcron'   => false,
-			'process_key'       => wp_generate_password(16, false, false)
+			'process_key'       => wp_generate_password(16, false, false),
+			'min_recipients'    => 1
 		];
 
 		$advanced = get_option('smtp_mailing_queue_advanced');
@@ -143,6 +144,30 @@ class SMTPMailingQueue {
 			'display' => 'Interval for sending mail'
 		];
 		return $schedules;
+	}
+
+	/**
+	 * Writes mail data to json file or sends mail directly.
+	 *
+	 * @param string $to
+	 * @param string $subject
+	 * @param string $message
+	 * @param array|string $headers
+	 * @param array $attachments
+	 *
+	 * @return bool
+	 */
+	public function wp_mail($to, $subject, $message, $headers = '', $attachments = array()){
+
+		$advancedOptions = get_option('smtp_mailing_queue_advanced');
+		$minRecipients = isset($advancedOptions['min_recipients']) ? $advancedOptions['min_recipients'] : 1;
+
+		if(count(explode(',', $to)) >= $minRecipients)
+			return $this->storeMail($to, $subject, $message, $headers, $attachments);
+		else {
+			require_once('SMTPMailingQueueOriginal.php');
+			return SMTPMailingQueueOriginal::wp_mail($to, $subject, $message, $headers, $attachments);
+		}
 	}
 
 	/**
