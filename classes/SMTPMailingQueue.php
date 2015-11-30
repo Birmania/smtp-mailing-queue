@@ -1,4 +1,5 @@
 <?php
+
 class SMTPMailingQueue {
 
 	/**
@@ -158,7 +159,6 @@ class SMTPMailingQueue {
 	 * @return bool
 	 */
 	public function wp_mail($to, $subject, $message, $headers = '', $attachments = array()){
-
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
 		$minRecipients = isset($advancedOptions['min_recipients']) ? $advancedOptions['min_recipients'] : 1;
 
@@ -182,9 +182,13 @@ class SMTPMailingQueue {
 	 * @return bool
 	 */
 	public function storeMail($to, $subject, $message, $headers = '', $attachments = array()) {
+		require_once ABSPATH . WPINC . '/class-phpmailer.php';
+
 		$time = time();
 		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time');
-		$fileName = $this->getUploadDir() . microtime(true) . '.json';
+
+		$validEMail = PHPMailer::validateAddress($to);
+		$fileName = $this->getUploadDir($validEMail) . microtime(true) . '.json';
 		$handle = @fopen($fileName, "w");
 		if(!$handle)
 			return false;
@@ -197,9 +201,12 @@ class SMTPMailingQueue {
 	 * Creates upload dir if it not existing.
 	 * Adds .htaccess protection to upload dir.
 	 *
+	 * @param bool $invalid
+	 *
 	 * @return string upload dir
 	 */
-	protected function getUploadDir() {
+	protected function getUploadDir($invalid = false) {
+		$subfolder = $invalid ? 'invalid/' : '';
 		$dir = wp_upload_dir()['basedir'] . '/smtp-mailing-queue/';
 		$created = wp_mkdir_p($dir);
 		if($created) {
@@ -207,6 +214,12 @@ class SMTPMailingQueue {
 			fwrite($handle, 'DENY FROM ALL');
 			fclose($handle);
 		}
+
+		if($invalid) {
+			$dir = $dir . $subfolder;
+			wp_mkdir_p($dir);
+		}
+
 		return $dir;
 	}
 
@@ -214,14 +227,16 @@ class SMTPMailingQueue {
 	 * Loads mail data from json files.
 	 *
 	 * @param bool $ignoreLimit
+	 * @param bool $invalid Load invalid emails
 	 *
 	 * @return array Mail data
 	 */
-	public function loadDataFromFiles($ignoreLimit = false) {
+	public function loadDataFromFiles($ignoreLimit = false, $invalid = false) {
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
 		$emails = [];
 		$i = 0;
-		foreach (glob($this->getUploadDir() . '*.json') as $filename) {
+
+		foreach (glob($this->getUploadDir($invalid) . '*.json') as $filename) {
 			$emails[ $filename ] = json_decode( file_get_contents( $filename ), true );
 			$i++;
 			if(!$ignoreLimit && !empty($advancedOptions['queue_limit']) && $i >= $advancedOptions['queue_limit'])
@@ -244,9 +259,10 @@ class SMTPMailingQueue {
 		foreach($mails as $file => $data) {
 			if($this->sendMail($data))
 				$this->deleteFile($file);
-			else
+			else {
+				rename($file, $this->getUploadDir(true) . substr($file, strrpos($file, "/") + 1));
 				die('email not sent');
-			// @todo: else log error or so
+			}
 		}
 		exit;
 	}
@@ -287,6 +303,8 @@ class SMTPMailingQueue {
 
 		// Set mailer to SMTP
 		$phpmailer->isSMTP();
+
+//		$phpmailer->SMTPDebug = 1;
 
 		// Set sender info
 		$phpmailer->From = $options['from_email'];

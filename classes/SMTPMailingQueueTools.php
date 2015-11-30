@@ -49,11 +49,13 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 			<li><strong>Test Mail</strong>: Test your email settings by sendig directly or adding test mail into queue.</li>
 			<li><strong>Process Queue</strong>: Start queue processing manually. Your set queue limit will still be obeyed, if set.</li>
 			<li><strong>List Queue</strong>: Show all mails in mailing queue.</li>
+			<li><strong>Sending Errors</strong>: Emails that could'nt be sent.</li>
 		</ul>
 		<h3 class="nav-tab-wrapper">
 			<a href="?page=smtp-mailing-queue&tab=tools&tool=testmail" class="nav-tab <?php echo $this->activeTool == 'testmail' ? 'nav-tab-active' : '' ?>">Test Mail</a>
 			<a href="?page=smtp-mailing-queue&tab=tools&tool=processQueue" class="nav-tab <?php echo $this->activeTool == 'processQueue' ? 'nav-tab-active' : '' ?>">Process Queue</a>
 			<a href="?page=smtp-mailing-queue&tab=tools&tool=listQueue" class="nav-tab <?php echo $this->activeTool == 'listQueue' ? 'nav-tab-active' : '' ?>">List Queue</a>
+			<a href="?page=smtp-mailing-queue&tab=tools&tool=listInvalid" class="nav-tab <?php echo $this->activeTool == 'listInvalid' ? 'nav-tab-active' : '' ?>">Sending Errors</a>
 		</h3>
 		<?php
 
@@ -66,6 +68,9 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 				break;
 			case 'listQueue':
 				$this->createListQueue();
+				break;
+			case 'listInvalid':
+				$this->createListQueue(true);
 				break;
 		}
 	}
@@ -240,10 +245,12 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 
 	/**
 	 * Prints table with mailing queue
+	 *
+	 * @param bool $invalid
 	 */
-	private function createListQueue() {
+	private function createListQueue($invalid = false) {
 		global $smtpMailingQueue;
-		$data = $smtpMailingQueue->loadDataFromFiles(true);
+		$data = $smtpMailingQueue->loadDataFromFiles(true, $invalid);
 		if(!$data) {
 			echo '<p>No mails in queue</p>';
 			return;
@@ -279,8 +286,6 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 		</table>
 		<?php
 	}
-
-
 
 
 	/**

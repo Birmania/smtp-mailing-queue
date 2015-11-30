@@ -3,8 +3,8 @@ Contributors: hildende
 Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
-Tested up to: 4.2
-Stable tag: 1.0.4
+Tested up to: 4.4
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,10 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.0.5 =
+* Feature/Bugfix: Added tools section for emails that couldn't be sent. Those emails will no longer stop the entire queue.
+Further actions for those mails will come with the next release.
 
 = 1.0.4 =
 
