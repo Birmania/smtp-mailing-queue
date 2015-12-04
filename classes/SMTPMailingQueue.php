@@ -7,6 +7,11 @@ class SMTPMailingQueue {
 	 */
 	protected $pluginFile;
 
+	/**
+	 * @var string
+	 */
+	public $pluginVersion = '1.0.6';
+
 	public function __construct($pluginFile) {
 		$this->pluginFile = $pluginFile;
 		$this->init();
@@ -178,22 +183,45 @@ class SMTPMailingQueue {
 	 * @param string $message
 	 * @param array|string $headers
 	 * @param array $attachments
+	 * @param string $time
 	 *
 	 * @return bool
 	 */
-	public function storeMail($to, $subject, $message, $headers = '', $attachments = array()) {
+	public function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null) {
 		require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
-		$time = time();
+		$time = $time ?: time();
 		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time');
 
-		$validEMail = PHPMailer::validateAddress($to);
-		$fileName = $this->getUploadDir($validEMail) . microtime(true) . '.json';
-		$handle = @fopen($fileName, "w");
-		if(!$handle)
-			return false;
-		fwrite($handle, json_encode($data));
-		fclose($handle);
+		$validEmails = [];
+		$invalidEmails = [];
+		foreach(explode(',', $to) as $recipient) {
+			if(PHPMailer::validateAddress($recipient))
+				$validEmails[] = $recipient;
+			else
+				$invalidEmails[] = $recipient;
+		}
+
+		// @todo: not happy with doing the same thing 2x. Should write that to a separate method
+		if(count($validEmails)) {
+			$data['to'] = implode(',', $validEmails);
+			$fileName = $this->getUploadDir(false) . microtime(true) . '.json';
+			$handle = @fopen($fileName, "w");
+			if(!$handle)
+				return false;
+			fwrite($handle, json_encode($data));
+			fclose($handle);
+		}
+		if(count($invalidEmails)) {
+			$data['to'] = implode(',', $invalidEmails);
+			$fileName = $this->getUploadDir(true) . microtime(true) . '.json';
+			$handle = @fopen($fileName, "w");
+			if(!$handle)
+				return false;
+			fwrite($handle, json_encode($data));
+			fclose($handle);
+		}
+
 		return true;
 	}
 
@@ -257,13 +285,15 @@ class SMTPMailingQueue {
 
 		$mails = $this->loadDataFromFiles();
 		foreach($mails as $file => $data) {
-			if($this->sendMail($data))
+			if($this->sendMail($data)) {
 				$this->deleteFile($file);
-			else {
+//				echo 'Mail sent to ' . $data['to'] . PHP_EOL;
+			} else {
 				rename($file, $this->getUploadDir(true) . substr($file, strrpos($file, "/") + 1));
-				die('email not sent');
+//				echo 'Mail not sent to ' . $data['to'] . PHP_EOL;
 			}
 		}
+
 		exit;
 	}
 
@@ -283,7 +313,7 @@ class SMTPMailingQueue {
 	 *
 	 * @param string $file Absolute path to file
 	 */
-	protected function deleteFile($file) {
+	public function deleteFile($file) {
 		unlink($file);
 	}
 

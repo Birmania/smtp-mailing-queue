@@ -4,7 +4,7 @@ Plugin Name: SMTP Mailing Queue
 Plugin URI: http://dennishildenbrand.com
 Description: SMTP Mailing Queue
 Author: Dennis Hildenbrand
-Version: 1.0.5
+Version: 1.0.6
 Author URI: http://dennishildenbrand.com
 */
 
@@ -30,11 +30,13 @@ if(is_admin() && version_compare(PHP_VERSION, '5.4', '<')) {
 }
 
 require_once('classes/SMTPMailingQueue.php');
+require_once('classes/SMTPMailingQueueUpdate.php');
 require_once('classes/SMTPMailingQueueOptions.php');
 require_once('classes/SMTPMailingQueueAdvancedOptions.php');
 require_once('classes/SMTPMailingQueueTools.php');
 
 $smtpMailingQueue = new SMTPMailingQueue(__FILE__);
+$smtpMailingQueueUpdate = new SMTPMailingQueueUpdate(__FILE__);
 new SMTPMailingQueueOptions();
 new SMTPMailingQueueAdvancedOptions();
 new SMTPMailingQueueTools();
@@ -46,3 +48,5 @@ if (!function_exists('wp_mail') && !isset($_GET['smqProcessQueue'])) {
 		return $smtpMailingQueue->wp_mail($to, $subject, $message, $headers, $attachments);
 	}
 }
+
+add_action('plugins_loaded', [$smtpMailingQueueUpdate, 'update']);

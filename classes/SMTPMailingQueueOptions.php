@@ -178,10 +178,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 	/**
 	 * Prints tab section info
-	 *
-	 * @param array $arg
 	 */
-	public function section_info($arg) {
+	public function section_info() {
 		?>
 		<p>Enter the SMTP credentials you got from your mail provider. Leave blank, if you don't want to  use SMTP.</p>
 		<?php
