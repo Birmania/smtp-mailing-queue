@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 4.4
-Stable tag: 1.0.6
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -119,6 +119,17 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.1.0 =
+* Feature: Made plugin translatable.
+
+* Feature: Added German translation.
+
+* Bugfix: Fixed cron requests on IDN hosts (Thanks to [epoxa](https://github.com/epoxa) for this fix)
+
+* Bugfix: Fixed bug that caused plugin to ignore smtp settings in some cases.
+
+* Bugfix: Fixed php5.3 incompatibility message.
 
 = 1.0.6 =
 * Bugfix: Emails that couldn't be sent now really don't stop the queue anymore.

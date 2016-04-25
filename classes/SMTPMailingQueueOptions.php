@@ -72,7 +72,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'from_name',                                    // id
-			'From Name',                                    // title
+			__('From Name', 'smtp-mailing-queue'),          // title
 			[$this, 'from_name_callback'],                  // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -80,7 +80,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'from_email',                                   // id
-			'From Email',                                   // title
+			__('From Email', 'smtp-mailing-queue'),         // title
 			[$this, 'from_email_callback'],                 // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -88,7 +88,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'encryption',                                   // id
-			'Encryption',                                   // title
+			__('Encryption', 'smtp-mailing-queue'),         // title
 			[$this, 'encryption_callback'],                 // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -96,7 +96,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'host',                                         // id
-			'Host',                                         // title
+			__('Host', 'smtp-mailing-queue'),               // title
 			[$this, 'host_callback'],                       // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -104,7 +104,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'port',                                         // id
-			'Port',                                         // title
+			__('Port', 'smtp-mailing-queue'),               // title
 			[$this, 'port_callback'],                       // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -112,7 +112,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'use_authentication',                           // id
-			'Use authentication',                           // title
+			__('Use authentication', 'smtp-mailing-queue'), // title
 			array( $this, 'use_authentication_callback' ),  // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -120,7 +120,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'auth_username',                                // id
-			'Username',                                     // title
+			__('Username', 'smtp-mailing-queue'),           // title
 			[$this, 'auth_username_callback'],              // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -128,7 +128,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 		add_settings_field(
 			'auth_password',                                // id
-			'Password',                                     // title
+			__('Password', 'smtp-mailing-queue'),           // title
 			[$this, 'auth_password_callback'],              // callback
 			'smtp-mailing-queue-options',                   // page
 			'settings_section'                              // section
@@ -180,9 +180,9 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 * Prints tab section info
 	 */
 	public function section_info() {
-		?>
-		<p>Enter the SMTP credentials you got from your mail provider. Leave blank, if you don't want to  use SMTP.</p>
-		<?php
+		?><p>
+		<?=__('Enter the SMTP credentials you got from your mail provider. Leave blank, if you don\'t want to  use SMTP.', 'smtp-mailing-queue')?>
+		</p><?php
 	}
 
 	/**
@@ -190,7 +190,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function from_name_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[from_name]" id="from_name" value="%s">',
+			'<input class="regular-text" type="text" name="%s[from_name]" id="from_name" value="%s">',
+			$this->optionName,
 			isset($this->options['from_name']) ? esc_attr($this->options['from_name']) : ''
 		);
 	}
@@ -200,7 +201,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function from_email_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[from_email]" id="from_email" value="%s">',
+			'<input class="regular-text" type="text" name="%s[from_email]" id="from_email" value="%s">',
+			$this->optionName,
 			isset($this->options['from_email']) ? esc_attr($this->options['from_email']) : ''
 		);
 	}
@@ -211,11 +213,11 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	public function encryption_callback() {
 		?>
 		<fieldset><?php $checked = (isset($this->options['encryption']) && $this->options['encryption'] === '') ? 'checked' : '' ; ?>
-			<label for="encryption-0"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-0" value="" <?php echo $checked; ?>> None</label><br>
+			<label for="encryption-0"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-0" value="" <?php echo $checked; ?>><?=__('None', 'smtp-mailing-queue')?></label><br>
 			<?php $checked = (isset($this->options['encryption']) && $this->options['encryption'] === 'tls') ? 'checked' : '' ; ?>
-			<label for="encryption-1"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-1" value="tls" <?php echo $checked; ?>> TLS</label><br>
+			<label for="encryption-1"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-1" value="tls" <?php echo $checked; ?>><?=__('TLS', 'smtp-mailing-queue')?></label><br>
 			<?php $checked = (isset($this->options['encryption']) && $this->options['encryption'] === 'ssl') ? 'checked' : '' ; ?>
-			<label for="encryption-2"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-2" value="ssl" <?php echo $checked; ?>> SSL</label>
+			<label for="encryption-2"><input type="radio" name="<?php echo $this->optionName ?>[encryption]" id="encryption-2" value="ssl" <?php echo $checked; ?>><?=__('SSL', 'smtp-mailing-queue')?></label>
 		</fieldset>
 		<?php
 	}
@@ -225,7 +227,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function host_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[host]" id="host" value="%s">',
+			'<input class="regular-text" type="text" name="%s[host]" id="host" value="%s">',
+			$this->optionName,
 			isset($this->options['host']) ? esc_attr($this->options['host']) : ''
 		);
 	}
@@ -235,7 +238,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function port_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[port]" id="port" value="%s">',
+			'<input class="regular-text" type="text" name="%s[port]" id="port" value="%s">',
+			$this->optionName,
 			isset($this->options['port']) ? esc_attr($this->options['port']) : ''
 		);
 	}
@@ -245,7 +249,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function use_authentication_callback() {
 		printf(
-			'<input type="checkbox" name="' . $this->optionName . '[use_authentication]" id="use_authentication" value="use_authentication" %s>',
+			'<input type="checkbox" name="%s[use_authentication]" id="use_authentication" value="use_authentication" %s>',
+			$this->optionName,
 			(isset($this->options['use_authentication']) && $this->options['use_authentication'] === 'use_authentication' ) ? 'checked' : ''
 		);
 	}
@@ -255,7 +260,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	public function auth_username_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[auth_username]" id="auth_username" value="%s">',
+			'<input class="regular-text" type="text" name="%s[auth_username]" id="auth_username" value="%s">',
+			$this->optionName,
 			isset($this->options['auth_username']) ? esc_attr($this->options['auth_username']) : ''
 		);
 	}
@@ -266,7 +272,8 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	public function auth_password_callback() {
 		global $smtpMailingQueue;
 		printf(
-			'<input class="regular-text" type="password" name="' . $this->optionName . '[auth_password]" id="auth_password" value="%s">',
+			'<input class="regular-text" type="password" name="%s[auth_password]" id="auth_password" value="%s">',
+			$this->optionName,
 			isset($this->options['auth_password']) ? esc_attr($smtpMailingQueue->decrypt($this->options['auth_password'])) : ''
 		);
 	}

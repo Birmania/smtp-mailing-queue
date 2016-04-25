@@ -37,7 +37,8 @@ class SMTPMailingQueueUpdate {
 		foreach($queue as $file => $email) {
 			if(!PHPMailer::validateAddress($email['to'])) {
 				$this->smtpMailingQueue->deleteFile($file);
-				$this->smtpMailingQueue->storeMail(
+
+				SMTPMailingQueue::storeMail(
 					$email['to'], $email['subject'], $email['message'], $email['headers'],
 					$email['attachments'], $email['time']
 				);
@@ -46,7 +47,7 @@ class SMTPMailingQueueUpdate {
 
 		foreach($errors as $file => $email) {
 			$this->smtpMailingQueue->deleteFile($file);
-			$this->smtpMailingQueue->storeMail(
+			SMTPMailingQueue::storeMail(
 				$email['to'], $email['subject'], $email['message'], $email['headers'],
 				$email['attachments'], $email['time']
 			);

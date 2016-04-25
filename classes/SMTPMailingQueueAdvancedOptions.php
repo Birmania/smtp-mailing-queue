@@ -53,56 +53,56 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	public function page_init() {
 		register_setting(
-			'smq_advanced',                                 // option_group
-			$this->optionName,                              // option_name
-			[$this, 'sanitize']                             // sanitize_callback
+			'smq_advanced',                                         // option_group
+			$this->optionName,                                      // option_name
+			[$this, 'sanitize']                                     // sanitize_callback
 		);
 
 		add_settings_section(
-			'settings_section',                             // id
-			'',                                             // title
-			[$this, 'section_info'],                        // callback
-			'smtp-mailing-queue-advanced'                   // page
+			'settings_section',                                     // id
+			'',                                                     // title
+			[$this, 'section_info'],                                // callback
+			'smtp-mailing-queue-advanced'                           // page
 		);
 
 		add_settings_field(
-			'queue_limit',                                  // id
-			'Queue Limit',                                  // title
-			[$this, 'queue_limit_callback'],                // callback
-			'smtp-mailing-queue-advanced',                  // page
-			'settings_section'                              // section
+			'queue_limit',                                          // id
+			__('Queue Limit', 'smtp-mailing-queue'),                // title
+			[$this, 'queue_limit_callback'],                        // callback
+			'smtp-mailing-queue-advanced',                          // page
+			'settings_section'                                      // section
 		);
 
 		add_settings_field(
-			'process_key',                                  // id
-			'Secret Key',                                   // title
-			[$this, 'process_key_callback'],                // callback
-			'smtp-mailing-queue-advanced',                  // page
-			'settings_section'                              // section
+			'process_key',                                          // id
+			__('Secret Key', 'smtp-mailing-queue'),                 // title
+			[$this, 'process_key_callback'],                        // callback
+			'smtp-mailing-queue-advanced',                          // page
+			'settings_section'                                      // section
 		);
 
 		add_settings_field(
-			'dont_use_wpcron',                              // id
-			'Don\'t use wp_cron',                           // title
-			[$this, 'dont_use_wpcron_callback'],            // callback
-			'smtp-mailing-queue-advanced',                  // page
-			'settings_section'                              // section
+			'dont_use_wpcron',                                      // id
+			__('Don\'t use wp_cron', 'smtp-mailing-queue'),         // title
+			[$this, 'dont_use_wpcron_callback'],                    // callback
+			'smtp-mailing-queue-advanced',                          // page
+			'settings_section'                                      // section
 		);
 
 		add_settings_field(
-			'wpcron_interval',                              // id
-			'wp_cron interval',                             // title
-			[$this, 'wpcron_interval_callback'],            // callback
-			'smtp-mailing-queue-advanced',                  // page
-			'settings_section'                              // section
+			'wpcron_interval',                                      // id
+			__('wp_cron interval', 'smtp-mailing-queue'),           // title
+			[$this, 'wpcron_interval_callback'],                    // callback
+			'smtp-mailing-queue-advanced',                          // page
+			'settings_section'                                      // section
 		);
 
 		add_settings_field(
-			'min_recipients',                               // id
-			'Min. recipients to enqueue',                   // title
-			[$this, 'min_recipients_callback'],             // callback
-			'smtp-mailing-queue-advanced',                  // page
-			'settings_section'                              // section
+			'min_recipients',                                       // id
+			__('Min. recipients to enqueue', 'smtp-mailing-queue'), // title
+			[$this, 'min_recipients_callback'],                     // callback
+			'smtp-mailing-queue-advanced',                          // page
+			'settings_section'                                      // section
 		);
 	}
 
@@ -150,10 +150,11 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	public function queue_limit_callback() {
 		printf(
-			'<input class="small-text" type="number" name="' . $this->optionName . '[queue_limit]" id="queue_limit" value="%s">',
+			'<input class="small-text" type="number" name="%s[queue_limit]" id="queue_limit" value="%s">',
+			$this->optionName,
 			isset($this->options['queue_limit']) ? esc_attr($this->options['queue_limit']) : ''
 		);
-		echo '<p class="description">Set the amount of mails sent per cronjob processing.</p>';
+		echo '<p class="description">' . __('Amount of mails processed per cronjob execution.', 'smtp-mailing-queue') . '</p>';
 	}
 
 	/**
@@ -161,10 +162,11 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	public function min_recipients_callback() {
 		printf(
-			'<input class="small-text" type="number" name="' . $this->optionName . '[min_recipients]" id="min_recipients" value="%s">',
+			'<input class="small-text" type="number" name="%s[min_recipients]" id="min_recipients" value="%s">',
+			$this->optionName,
 			isset($this->options['min_recipients']) ? esc_attr($this->options['min_recipients']) : ''
 		);
-		echo '<p class="description">Set the amount of recipients required to start queue instead of sending directly.</p>';
+		echo '<p class="description">' . __('Minimum amount of recipients required to enqueue mail instead of sending immediately.', 'smtp-mailing-queue') . '</p>';
 	}
 
 	/**
@@ -172,10 +174,11 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	public function wpcron_interval_callback() {
 		printf(
-			'<input class="small-text" type="number" name="' . $this->optionName . '[wpcron_interval]" id="wpcron_interval" value="%s">',
+			'<input class="small-text" type="number" name="%s[wpcron_interval]" id="wpcron_interval" value="%s">',
+			$this->optionName,
 			isset($this->options['wpcron_interval']) ? esc_attr($this->options['wpcron_interval']) : '60'
 		);
-		echo '<p class="description">Choose how often wp_cron is started (in seconds).</p>';
+		echo '<p class="description">' . __('Time in seconds wp_cron waits until next execution.', 'smtp-mailing-queue') . '</p>';
 	}
 
 	/**
@@ -184,10 +187,11 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	public function dont_use_wpcron_callback() {
 		global $smtpMailingQueue;
 		printf(
-			'<input type="checkbox" name="' . $this->optionName . '[dont_use_wpcron]" id="dont_use_wpcron" value="dont_use_wpcron" %s> <label for="dont_use_wpcron">Use a real cronjob instead of wp_cron.</label>',
+			'<input type="checkbox" name="%s[dont_use_wpcron]" id="dont_use_wpcron" value="dont_use_wpcron" %s> <label for="dont_use_wpcron">' . __('Use a real cronjob instead of wp_cron.', 'smtp-mailing-queue') . '</label>',
+			$this->optionName,
 			(isset($this->options['dont_use_wpcron']) && $this->options['dont_use_wpcron'] === 'dont_use_wpcron') ? 'checked' : ''
 		);
-		echo '<p class="description">Call <strong>' . $smtpMailingQueue->getCronLink() . '</strong> in cronjob to start processing queue.</p>';
+		echo '<p class="description">' . sprintf(__('Call %s in cron to start processing queue.', 'smtp-mailing-queue'), '<strong>' . $smtpMailingQueue->getCronLink() . '</strong>') . '</p>';
 	}
 
 	/**
@@ -195,9 +199,10 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	public function process_key_callback() {
 		printf(
-			'<input class="regular-text" type="text" name="' . $this->optionName . '[process_key]" id="process_key" value="%s">',
+			'<input class="regular-text" type="text" name="%s[process_key]" id="process_key" value="%s">',
+			$this->optionName,
 			isset($this->options['process_key']) ? esc_attr($this->options['process_key']) : ''
 		);
-		echo '<p class="description">Set a key needed to start queue manually or via cronjob.</p>';
+		echo '<p class="description">' . __('This key is needed to start processing the queue manually or via cronjob.', 'smtp-mailing-queue') . '</p>';
 	}
 }

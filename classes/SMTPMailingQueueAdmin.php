@@ -25,11 +25,11 @@ class SMTPMailingQueueAdmin {
 	 */
 	public function add_plugin_page() {
 		add_options_page(
-			'SMTP Mailing Queue',               // page_title
-			'SMTP Mailing Queue',               // menu_title
-			'manage_options',                   // capability
-			'smtp-mailing-queue',               // menu_slug
-			[$this, 'create_admin_page']        // callback function
+			__('SMTP Mailing Queue', 'smtp-mailing-queue'), // page_title
+			__('SMTP Mailing Queue', 'smtp-mailing-queue'), // menu_title
+			'manage_options',                               // capability
+			'smtp-mailing-queue',                           // menu_slug
+			[$this, 'create_admin_page']                    // callback function
 		);
 	}
 
@@ -39,12 +39,12 @@ class SMTPMailingQueueAdmin {
 	 */
 	public function create_admin_page() {
 		?><div class="wrap">
-			<h2>SMTP Mailing Queue</h2>
+			<h2><?=__('SMTP Mailing Queue', 'smtp-mailing-queue')?></h2>
 
 			<h2 class="nav-tab-wrapper">
-				<a href="?page=smtp-mailing-queue&tab=settings" class="nav-tab <?php echo $this->activeTab == 'settings' ? 'nav-tab-active' : '' ?>">SMTP Settings</a>
-				<a href="?page=smtp-mailing-queue&tab=advanced" class="nav-tab <?php echo $this->activeTab == 'advanced' ? 'nav-tab-active' : '' ?>">Advanced Settings</a>
-				<a href="?page=smtp-mailing-queue&tab=tools" class="nav-tab <?php echo $this->activeTab == 'tools' ? 'nav-tab-active' : '' ?>">Tools</a>
+				<a href="?page=smtp-mailing-queue&tab=settings" class="nav-tab <?php echo $this->activeTab == 'settings' ? 'nav-tab-active' : '' ?>"><?=__('SMTP Settings', 'smtp-mailing-queue')?></a>
+				<a href="?page=smtp-mailing-queue&tab=advanced" class="nav-tab <?php echo $this->activeTab == 'advanced' ? 'nav-tab-active' : '' ?>"><?=__('Advanced Settings', 'smtp-mailing-queue')?></a>
+				<a href="?page=smtp-mailing-queue&tab=tools" class="nav-tab <?php echo $this->activeTab == 'tools' ? 'nav-tab-active' : '' ?>"><?=__('Tools', 'smtp-mailing-queue')?></a>
 			</h2>
 
 			<?php call_user_func([$this, 'loadPageContent']); ?>

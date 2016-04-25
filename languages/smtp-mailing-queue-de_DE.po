@@ -1,0 +1,319 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2016-01-31 17:18-0800\n"
+"PO-Revision-Date: 2016-04-09 13:21-0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.7\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;translate\n"
+"X-Poedit-SearchPath-0: classes\n"
+"X-Poedit-SearchPath-1: smtp-mailing-queue.php\n"
+
+#: classes/SMTPMailingQueue.php:78
+msgid "Donate"
+msgstr "Spenden"
+
+#: classes/SMTPMailingQueue.php:158
+msgid "Interval for sending mail"
+msgstr "Sende-Intervall"
+
+#: classes/SMTPMailingQueueAdmin.php:28 classes/SMTPMailingQueueAdmin.php:29
+#: classes/SMTPMailingQueueAdmin.php:42
+msgid "SMTP Mailing Queue"
+msgstr "SMTP Mailing Queue"
+
+#: classes/SMTPMailingQueueAdmin.php:45
+msgid "SMTP Settings"
+msgstr "SMTP Einstellungen"
+
+#: classes/SMTPMailingQueueAdmin.php:46
+msgid "Advanced Settings"
+msgstr "Erweiterte Einstellungen"
+
+#: classes/SMTPMailingQueueAdmin.php:47
+msgid "Tools"
+msgstr "Hilfsmittel"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:70
+msgid "Queue Limit"
+msgstr "Warteschlangenlimit"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:78
+msgid "Secret Key"
+msgstr "Sicherheitsschlüssel (Secret Key)"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:86
+msgid "Don't use wp_cron"
+msgstr "wp_cron nicht benutzen"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:94
+msgid "wp_cron interval"
+msgstr "wp_cron Intervall"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:102
+msgid "Min. recipients to enqueue"
+msgstr "Min. Anzahl Empfänger"
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:157
+msgid "Amount of mails processed per cronjob execution."
+msgstr "Anzahl Emails, die pro Cronjob Ausführung abgearbeitet werden. "
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:169
+msgid ""
+"Minimum amount of recipients required to enqueue mail instead of sending "
+"immediately."
+msgstr ""
+"Mindestanzahl an Empfängern benötigt um Email in Warteschlange zu schieben "
+"anstatt sofort zu senden."
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:181
+msgid "Time in seconds wp_cron waits until next execution."
+msgstr "Zeit in Sekunden, die wp_cron bis zur nächsten Ausführung warten soll."
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:190
+msgid "Use a real cronjob instead of wp_cron."
+msgstr "Nutze einen richtigen cronjob anstatt wp_cron."
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:194
+#, php-format
+msgid "Call %s in cron to start processing queue."
+msgstr "Rufe %s im Cronjob auf um das Abarbeiten der Warteschlange zu starten."
+
+#: classes/SMTPMailingQueueAdvancedOptions.php:206
+msgid ""
+"This key is needed to start processing the queue manually or via cronjob."
+msgstr ""
+"Dieser Schlüssel wird benötigt um die Warteschlange manuell oder per Cronjob "
+"abzuarbeiten."
+
+#: classes/SMTPMailingQueueOptions.php:75
+msgid "From Name"
+msgstr "Absender Name"
+
+#: classes/SMTPMailingQueueOptions.php:83
+msgid "From Email"
+msgstr "Absender Email"
+
+#: classes/SMTPMailingQueueOptions.php:91
+msgid "Encryption"
+msgstr "Verschlüsselung"
+
+#: classes/SMTPMailingQueueOptions.php:99
+msgid "Host"
+msgstr "Host"
+
+#: classes/SMTPMailingQueueOptions.php:107
+msgid "Port"
+msgstr "Port"
+
+#: classes/SMTPMailingQueueOptions.php:115
+msgid "Use authentication"
+msgstr "Authentifizierung verwenden?"
+
+#: classes/SMTPMailingQueueOptions.php:123
+msgid "Username"
+msgstr "Benutername"
+
+#: classes/SMTPMailingQueueOptions.php:131
+msgid "Password"
+msgstr "Passwort"
+
+#: classes/SMTPMailingQueueOptions.php:184
+msgid ""
+"Enter the SMTP credentials you got from your mail provider. Leave blank, if "
+"you don't want to  use SMTP."
+msgstr ""
+"Trage die SMTP Zugangsdaten ein, die du von deinem Emailanbieter erhalten "
+"hast. Lasse die Felder leer, wenn du kein SMTP verwenden willst."
+
+#: classes/SMTPMailingQueueOptions.php:216
+msgid "None"
+msgstr "Keine"
+
+#: classes/SMTPMailingQueueOptions.php:218
+msgid "TLS"
+msgstr "TLS"
+
+#: classes/SMTPMailingQueueOptions.php:220
+msgid "SSL"
+msgstr "SSL"
+
+#: classes/SMTPMailingQueueTools.php:50 classes/SMTPMailingQueueTools.php:68
+msgid "Test Mail"
+msgstr "Test Email"
+
+#: classes/SMTPMailingQueueTools.php:51
+msgid ""
+"Test your email settings by sendig directly or adding test mail into queue."
+msgstr ""
+"Teste deine Emaileinstellungen durch direktes Senden oder in die "
+"Warteschlange schieben."
+
+#: classes/SMTPMailingQueueTools.php:54 classes/SMTPMailingQueueTools.php:71
+msgid "Process Queue"
+msgstr "Warteschlange abarbeiten"
+
+#: classes/SMTPMailingQueueTools.php:55
+msgid ""
+"Start queue processing manually. Your set queue limit will still be obeyed, "
+"if set."
+msgstr ""
+"Starte das Abarbeiten der Warteschlange manuell. Das eingestellte "
+"Warteschlangenlimit wird weiterhin eingehalten."
+
+#: classes/SMTPMailingQueueTools.php:58 classes/SMTPMailingQueueTools.php:74
+msgid "List Queue"
+msgstr "Warteschlange"
+
+#: classes/SMTPMailingQueueTools.php:59
+msgid "Show all mails in mailing queue."
+msgstr "Zeige alle Emails in der Warteschlange."
+
+#: classes/SMTPMailingQueueTools.php:62 classes/SMTPMailingQueueTools.php:77
+msgid "Sending Errors"
+msgstr "Sendefehler"
+
+#: classes/SMTPMailingQueueTools.php:63
+msgid "Emails that could'nt be sent."
+msgstr "Emails, die nicht gesendet werden konnten."
+
+#: classes/SMTPMailingQueueTools.php:106
+msgid "To email address"
+msgstr "Empfänger Emailadresse"
+
+#: classes/SMTPMailingQueueTools.php:113
+msgid "Cc email addresses"
+msgstr "Cc Emailadresse"
+
+#: classes/SMTPMailingQueueTools.php:117 classes/SMTPMailingQueueTools.php:125
+msgid "Multiple addresses can be added separated by comma."
+msgstr "Mehrere Adressen können kommasepariert angegeben werden."
+
+#: classes/SMTPMailingQueueTools.php:121
+msgid "Bcc email addresses"
+msgstr "Bcc Emailadresse"
+
+#: classes/SMTPMailingQueueTools.php:129 classes/SMTPMailingQueueTools.php:284
+msgid "Subject"
+msgstr "Betreff"
+
+#: classes/SMTPMailingQueueTools.php:136 classes/SMTPMailingQueueTools.php:285
+msgid "Message"
+msgstr "Nachricht"
+
+#: classes/SMTPMailingQueueTools.php:142
+msgid "Don't wait for cronjob"
+msgstr "Nicht auf Cronjob warten"
+
+#: classes/SMTPMailingQueueTools.php:145
+msgid "Send directly without waiting for cronjob to process queue"
+msgstr "Sende direkt, ohne auf den Cronjob zu warten."
+
+#: classes/SMTPMailingQueueTools.php:177 classes/SMTPMailingQueueTools.php:257
+msgid "Looks like you're not allowed to do this"
+msgstr "Sieht so aus als ob du das nicht machen darfst."
+
+#: classes/SMTPMailingQueueTools.php:184
+msgid "Email address required"
+msgstr "Emailadresse benötigt"
+
+#: classes/SMTPMailingQueueTools.php:188
+msgid "Subject required"
+msgstr "Betreff  benötigt"
+
+#: classes/SMTPMailingQueueTools.php:192
+msgid "Message required"
+msgstr "Nachricht benötigt"
+
+#: classes/SMTPMailingQueueTools.php:220
+msgid "Mail file created. Will be sent when cronjob runs"
+msgstr ""
+"Email dabei erstellt. Wird verschickt, wenn der Cronjob ausgeführt wird."
+
+#: classes/SMTPMailingQueueTools.php:222
+msgid "Error writing mail data to file"
+msgstr "Fehler beim Emaildatei erstellen."
+
+#: classes/SMTPMailingQueueTools.php:233
+msgid "Mail successfully sent."
+msgstr "Email erfolgreich versendet."
+
+#: classes/SMTPMailingQueueTools.php:235
+msgid "Error sending mail"
+msgstr "Fehler beim Email versenden"
+
+#: classes/SMTPMailingQueueTools.php:263
+msgid "Emails sent"
+msgstr "Email versendet"
+
+#: classes/SMTPMailingQueueTools.php:275
+msgid "No mails in queue"
+msgstr "Keine Emails in der Warteschlange."
+
+#: classes/SMTPMailingQueueTools.php:282
+msgid "Time"
+msgstr "Zeit"
+
+#: classes/SMTPMailingQueueTools.php:283
+msgid "To"
+msgstr "Empfänger"
+
+#: classes/SMTPMailingQueueTools.php:286
+msgid "Headers"
+msgstr "Emailheader"
+
+#: classes/SMTPMailingQueueTools.php:287
+msgid "Attachments"
+msgstr "Anhänge"
+
+#: classes/SMTPMailingQueueTools.php:297
+msgid "F dS Y, H:i"
+msgstr "F dS Y, H:i"
+
+#: smtp-mailing-queue.php:16
+msgid ""
+"SMTP Mailing Queue requires at least PHP 5.4 The version you are using is %."
+msgstr ""
+"SMTP Mailing Queue benötigt mindestens PHP 5.4. Deine verwendete Version ist "
+"%."
+
+#: smtp-mailing-queue.php:17
+msgid ""
+"PHP 5.3 was discontinued by the PHP development team on August 14, 2014!"
+msgstr ""
+"PHP 5.3 wird seit dem 14. August 2014 nicht mehr vom PHP Entwicklerteam "
+"weitergeführt."
+
+#: smtp-mailing-queue.php:18
+#, php-format
+msgid ""
+"For security reasons we %s warmly suggest %s that you contact your hosting "
+"provider and ask to update your account to the latest stable PHP version, "
+"but at least PHP 5.4."
+msgstr ""
+"Aus Sicherheitsgründen %s empfehlen wir wärmstens %s, dass du deinen Hoster "
+"kontaktierst und um ein Update auf die aktuellste PHP Version bittest."
+
+#: smtp-mailing-queue.php:19
+#, php-format
+msgid ""
+"If they refuse for whatever reason we suggest to %s change provider as soon "
+"as possible. %s"
+msgstr ""
+"Falls sie dies, aus welchen Gründen auch immer, nicht tun wollen empfehlen "
+"wir den %s Anbieter so schnell wie möglich zu wechseln. %s."
+
+#~ msgid ""
+#~ "SMTP Mailing Queue requires at least PHP 5.4 The version you are using is"
+#~ msgstr "SMTP Mailind Queue benötigt mindestens PHP 5.4."
+
+#~ msgid "Set the amount of mails sent per cronjob processing."
+#~ msgstr "Anzahl der Mails, die ein Cronjob abarbeitet."
