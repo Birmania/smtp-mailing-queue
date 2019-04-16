@@ -10,7 +10,7 @@ class SMTPMailingQueue {
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.1.0';
+	public $pluginVersion = '1.1.1';
 
 	public function __construct($pluginFile = null) {
 		if($pluginFile)
