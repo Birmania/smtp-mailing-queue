@@ -104,6 +104,14 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			'smtp-mailing-queue-advanced',                          // page
 			'settings_section'                                      // section
 		);
+		
+		add_settings_field(
+			'max_retry',                                             // id
+			__('Max. retry for mail sending', 'smtp-mailing-queue'), // title
+			[$this, 'max_retry_callback'],                           // callback
+			'smtp-mailing-queue-advanced',                           // page
+			'settings_section'                                       // section
+		);
 	}
 
 	/**
@@ -133,6 +141,9 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 		if(isset($input['min_recipients']))
 			$sanitary_values['min_recipients'] = intval($input['min_recipients']);
 
+		if(isset($input['max_retry']))
+			$sanitary_values['max_retry'] = intval($input['max_retry']);
+		
 		return $sanitary_values;
 	}
 
@@ -167,6 +178,18 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			isset($this->options['min_recipients']) ? esc_attr($this->options['min_recipients']) : ''
 		);
 		echo '<p class="description">' . __('Minimum amount of recipients required to enqueue mail instead of sending immediately.', 'smtp-mailing-queue') . '</p>';
+	}
+	
+	/**
+	 * Prints queue limit field
+	 */
+	public function max_retry_callback() {
+		printf(
+			'<input class="small-text" type="number" name="%s[max_retry]" id="max_retry" value="%s">',
+			$this->optionName,
+			isset($this->options['max_retry']) ? esc_attr($this->options['max_retry']) : ''
+		);
+		echo '<p class="description">' . __('Maximum number of retry for mail sending.', 'smtp-mailing-queue') . '</p>';
 	}
 
 	/**

@@ -102,7 +102,8 @@ class SMTPMailingQueue {
 			'wpcron_interval'   => 300,
 			'dont_use_wpcron'   => false,
 			'process_key'       => wp_generate_password(16, false, false),
-			'min_recipients'    => 1
+			'min_recipients'    => 1,
+			'max_retry'         => 10
 		];
 
 		$advanced = get_option('smtp_mailing_queue_advanced');
@@ -228,50 +229,46 @@ class SMTPMailingQueue {
 	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null) {
 		require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
+		// Store attachments
+		require_once('SMTPMailingQueueAttachments.php');
+		$attachments = SMTPMailingQueueAttachments::storeAttachments($attachments);
+		
 		$time = $time ?: time();
-		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time');
+		$failures = 0;
+		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time', 'failures');
 
-		$validEmails = [];
-		$invalidEmails = [];
-		foreach(explode(',', $to) as $recipient) {
-			if(PHPMailer::validateAddress($recipient))
-				$validEmails[] = $recipient;
-			else
-				$invalidEmails[] = $recipient;
-		}
+		$fileName = self::getUploadDir() . microtime(true) . '.json';
 
-		$fileName = self::getUploadDir(false) . microtime(true) . '.json';
-		// @todo: not happy with doing the same thing 2x. Should write that to a separate method
-		if(count($validEmails)) {
-			$data['to'] = implode(',', $validEmails);
-			$handle = @fopen($fileName, "w");
-			if(!$handle)
-				return false;
-			fwrite($handle, json_encode($data));
-			fclose($handle);
-		}
-		if(count($invalidEmails)) {
-			$data['to'] = implode(',', $invalidEmails);
-			$handle = @fopen($fileName, "w");
-			if(!$handle)
-				return false;
-			fwrite($handle, json_encode($data));
-			fclose($handle);
-		}
-
-		return true;
+		return self::writeDataToFile($fileName, $data);
 	}
+	
+	/**
+	 * Write the mail to filesystem
+	 * 
+	 * @param string $filepath
+	 * @param array $data mail data
+	 * 
+	 * @return boolean true if write success, false if not
+	 */
+	 public static function writeDataToFile($filepath, $data) {
+			$handle = @fopen($filepath, "w");
+			if(!$handle)
+				return false;
+			fwrite($handle, json_encode($data));
+			fclose($handle);
+			
+			return true;
+	 }
 
 	/**
 	 * Creates upload dir if it not existing.
 	 * Adds htaccess protection to upload dir.
 	 *
-	 * @param bool $invalid
+	 * @param string $type
 	 *
 	 * @return string upload dir
 	 */
-	public static function getUploadDir($invalid = false) {
-		$subfolder = $invalid ? 'invalid/' : '';
+	public static function getUploadDir($type = false) {
 		$dir = wp_upload_dir()['basedir'] . '/smtp-mailing-queue/';
 		$created = wp_mkdir_p($dir);
 		if($created) {
@@ -280,8 +277,11 @@ class SMTPMailingQueue {
 			fclose($handle);
 		}
 
-		if($invalid) {
-			$dir = $dir . $subfolder;
+		if ('invalid' == $type) {
+			$dir = $dir . 'invalid/';
+			wp_mkdir_p($dir);
+		} if ('attachments' == $type){
+			$dir = $dir . 'attachments/';
 			wp_mkdir_p($dir);
 		}
 
@@ -301,7 +301,15 @@ class SMTPMailingQueue {
 		$emails = [];
 		$i = 0;
 
-		foreach (glob(self::getUploadDir($invalid) . '*.json') as $filename) {
+		if ($invalid) {
+			$uploadType = 'invalid';
+		}
+		else
+		{
+			$uploadType = '';
+		}
+		
+		foreach (glob(self::getUploadDir($uploadType) . '*.json') as $filename) {
 			$emails[ $filename ] = json_decode( file_get_contents( $filename ), true );
 			$i++;
 			if(!$ignoreLimit && !empty($advancedOptions['queue_limit']) && $i >= $advancedOptions['queue_limit'])
@@ -320,12 +328,28 @@ class SMTPMailingQueue {
 		if($checkKey && (!isset($_GET['key']) || $advancedOptions['process_key'] != $_GET['key']))
 			return;
 
+		$max_retry = isset($advancedOptions['max_retry']) ? $advancedOptions['max_retry'] : 10;
 		$mails = $this->loadDataFromFiles();
+
 		foreach($mails as $file => $data) {
 			if($this->sendMail($data))
+			{
 				$this->deleteFile($file);
+				require_once('SMTPMailingQueueAttachments.php');
+				SMTPMailingQueueAttachments::removeAttachments($data['attachments']);
+			}
 			else
-				rename($file, self::getUploadDir(true) . substr($file, strrpos($file, "/") + 1));
+			{
+				// Increment the failures counter
+				$data['failures']++;
+				self::writeDataToFile($file, $data);
+				
+				// If failures reach max retry counter, move mail to invalid
+				if ($data['failures'] > $max_retry)
+				{
+					rename($file, self::getUploadDir('invalid') . substr($file, strrpos($file, "/") + 1));
+				}
+			}
 		}
 
 		exit;

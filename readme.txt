@@ -120,6 +120,13 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 
 == Changelog ==
 
+= 1.1.1 =
+* Feature: Added advanced option to retry mail sending X time before declare invalid.
+
+* Feature: Added French translation.
+
+* Bugfix: Attachments are no longer lost on mail sending.
+
 = 1.1.0 =
 * Feature: Made plugin translatable.
 

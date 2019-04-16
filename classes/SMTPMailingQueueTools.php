@@ -285,6 +285,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<th><?php _e('Message', 'smtp-mailing-queue') ?></th>
 					<th><?php _e('Headers', 'smtp-mailing-queue') ?></th>
 					<th><?php _e('Attachments', 'smtp-mailing-queue') ?></th>
+					<th><?php _e('Failures', 'smtp-mailing-queue') ?></th>
 				</tr>
 			</thead>
 			<?php $i = 1; ?>
@@ -300,6 +301,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<td><?php echo nl2br($mail['message']) ?></td>
 					<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
 					<td><?php echo implode('<br />', $mail['attachments']); ?></td>
+					<td><?php echo $mail['failures'] ?></td>
 				</tr>
 				<?php $i++; ?>
 			<?php endforeach; ?>
