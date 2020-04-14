@@ -14,7 +14,7 @@ class SMTPMailingQueueAttachments {
 		// DO NOTHING
 	}
 	
-	function storeAttachments($attachments) {
+	public static function storeAttachments($attachments) {
 		$attachments_stored = [];
 	
 		foreach ($attachments as $attachment)

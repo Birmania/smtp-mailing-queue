@@ -1,6 +1,7 @@
 <?php
 
-class SMTPMailingQueue {
+class SMTPMailingQueue
+{
 
 	/**
 	 * @var string Abs path to plugin main file.
@@ -10,10 +11,11 @@ class SMTPMailingQueue {
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.1.1';
+	public $pluginVersion = '1.2.0';
 
-	public function __construct($pluginFile = null) {
-		if($pluginFile)
+	public function __construct($pluginFile = null)
+	{
+		if ($pluginFile)
 			$this->pluginFile = $pluginFile;
 		$this->init();
 	}
@@ -21,17 +23,18 @@ class SMTPMailingQueue {
 	/**
 	 * Adds hooks, actions and filters for plugin.
 	 */
-	protected function init() {
+	protected function init()
+	{
 		// Actions
 		add_action('phpmailer_init', [$this, 'initMailer']);
 
-		if(isset($_GET['smqProcessQueue'])) {
-			add_action('init', function() {
+		if (isset($_GET['smqProcessQueue'])) {
+			add_action('init', function () {
 				$this->processQueue();
 			});
 		}
 
-		add_action('init', function() {
+		add_action('init', function () {
 			load_plugin_textdomain('smtp-mailing-queue', false, 'smtp-mailing-queue/languages/');
 		});
 
@@ -54,10 +57,11 @@ class SMTPMailingQueue {
 	 *
 	 * @return array
 	 */
-	public function addActionLinksToPluginPage($links) {
+	public function addActionLinksToPluginPage($links)
+	{
 		$new_links = [sprintf(
 			'<a href="%s">%s</a>',
-			admin_url( 'options-general.php?page=smtp-mailing-queue' ),
+			admin_url('options-general.php?page=smtp-mailing-queue'),
 			'Settings'
 		)];
 		return array_merge($new_links, $links);
@@ -71,8 +75,9 @@ class SMTPMailingQueue {
 	 *
 	 * @return array
 	 */
-	public function addDonateLinkToPluginPage($links, $file) {
-		if(strpos($file, plugin_basename($this->pluginFile)) !== false) {
+	public function addDonateLinkToPluginPage($links, $file)
+	{
+		if (strpos($file, plugin_basename($this->pluginFile)) !== false) {
 			$new_links = [sprintf(
 				'<a target="_blank" href="%s">%s</a>',
 				'https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4',
@@ -86,7 +91,8 @@ class SMTPMailingQueue {
 	/**
 	 * Gets called on plugin activation.
 	 */
-	public function onActivation() {
+	public function onActivation()
+	{
 		$this->refreshWpCron();
 		$this->setOptionsDefault();
 	}
@@ -95,15 +101,16 @@ class SMTPMailingQueue {
 	 * Sets default options for advanced settings.
 	 * No default options for normal settings needed.
 	 */
-	protected function setOptionsDefault() {
+	protected function setOptionsDefault()
+	{
 		// advanced settings
 		$advancedDefault = [
-			'queue_limit'       => 10,
-			'wpcron_interval'   => 300,
-			'dont_use_wpcron'   => false,
-			'process_key'       => wp_generate_password(16, false, false),
-			'min_recipients'    => 1,
-			'max_retry'         => 10
+			'queue_limit' => 10,
+			'wpcron_interval' => 300,
+			'dont_use_wpcron' => false,
+			'process_key' => wp_generate_password(16, false, false),
+			'min_recipients' => 1,
+			'max_retry' => 10
 		];
 
 		$advanced = get_option('smtp_mailing_queue_advanced');
@@ -114,24 +121,27 @@ class SMTPMailingQueue {
 	/**
 	 * (Re)sets wp_cron, e.g. on activation and interval update.
 	 */
-	public function refreshWpCron() {
-		if(wp_next_scheduled('smq_start_queue'))
-			wp_clear_scheduled_hook( 'smq_start_queue' );
-		wp_schedule_event( time(), 'smq', 'smq_start_queue' );
+	public function refreshWpCron()
+	{
+		if (wp_next_scheduled('smq_start_queue'))
+			wp_clear_scheduled_hook('smq_start_queue');
+		wp_schedule_event(time(), 'smq', 'smq_start_queue');
 	}
 
 	/**
 	 * Gets called on plugin deactivation.
 	 */
-	public function onDeactivation() {
+	public function onDeactivation()
+	{
 		// remove plugin from wp_cron
-		wp_clear_scheduled_hook( 'smq_start_queue' );
+		wp_clear_scheduled_hook('smq_start_queue');
 	}
 
 	/**
 	 * Calls URL for processing the mailing queue.
 	 */
-	public function callProcessQueue() {
+	public function callProcessQueue()
+	{
 		wp_remote_get($this->getCronLink());
 	}
 
@@ -140,36 +150,38 @@ class SMTPMailingQueue {
 	 *
 	 * @return string
 	 */
-	public function getCronLink() {
+	public function getCronLink()
+	{
 		$wpUrl = get_bloginfo("wpurl");
-        if (function_exists('idn_to_ascii')) {
-            $parts = parse_url($wpUrl);
-            $host = $parts['host'];
-            if (preg_match('/[\x80-\xFF]/', $host)) {
-                $puny = idn_to_ascii($host);
-                if ($puny !== false) {
-                    $parts['host'] = $puny;
-                    $wpUrl = $this->composeUrl($parts);
-                }
-            }
-        }
-        $key = get_option('smtp_mailing_queue_advanced')['process_key'];
+		if (function_exists('idn_to_ascii')) {
+			$parts = parse_url($wpUrl);
+			$host = $parts['host'];
+			if (preg_match('/[\x80-\xFF]/', $host)) {
+				$puny = idn_to_ascii($host);
+				if ($puny !== false) {
+					$parts['host'] = $puny;
+					$wpUrl = $this->composeUrl($parts);
+				}
+			}
+		}
+		$key = get_option('smtp_mailing_queue_advanced')['process_key'];
 		return $wpUrl . '?smqProcessQueue&key=' . $key;
 	}
 
-    /**
-     * Build wordpress blog url from components acquired via parse_url
-     *
-     * @param $parsed_url
-     *
-     * @return string
-     */
-    function composeUrl($parsed_url) {
-        $scheme   = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-        $host     = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-        $port     = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-        $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-        return "$scheme$host$port$path";
+	/**
+	 * Build wordpress blog url from components acquired via parse_url
+	 *
+	 * @param $parsed_url
+	 *
+	 * @return string
+	 */
+	function composeUrl($parsed_url)
+	{
+		$scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
+		$host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+		$port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
+		$path = isset($parsed_url['path']) ? $parsed_url['path'] : '';
+		return "$scheme$host$port$path";
 	}
 
 	/**
@@ -179,7 +191,8 @@ class SMTPMailingQueue {
 	 *
 	 * @return array
 	 */
-	public function addWpCronInterval($schedules) {
+	public function addWpCronInterval($schedules)
+	{
 		$interval = get_option('smtp_mailing_queue_advanced')['wpcron_interval'];
 		$schedules['smq'] = [
 			'interval' => $interval,
@@ -199,14 +212,15 @@ class SMTPMailingQueue {
 	 *
 	 * @return bool
 	 */
-	public function wp_mail($to, $subject, $message, $headers = '', $attachments = array()){
+	public function wp_mail($to, $subject, $message, $headers = '', $attachments = array())
+	{
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
 		$minRecipients = isset($advancedOptions['min_recipients']) ? $advancedOptions['min_recipients'] : 1;
 
-		if(is_array($to))
+		if (is_array($to))
 			$to = implode(',', $to);
 
-		if(count(explode(',', $to)) >= $minRecipients)
+		if (count(explode(',', $to)) >= $minRecipients)
 			return self::storeMail($to, $subject, $message, $headers, $attachments);
 		else {
 			require_once('SMTPMailingQueueOriginal.php');
@@ -226,13 +240,14 @@ class SMTPMailingQueue {
 	 *
 	 * @return bool
 	 */
-	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null) {
+	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null)
+	{
 		require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
 		// Store attachments
 		require_once('SMTPMailingQueueAttachments.php');
 		$attachments = SMTPMailingQueueAttachments::storeAttachments($attachments);
-		
+
 		$time = $time ?: time();
 		$failures = 0;
 		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time', 'failures');
@@ -241,24 +256,25 @@ class SMTPMailingQueue {
 
 		return self::writeDataToFile($fileName, $data);
 	}
-	
+
 	/**
 	 * Write the mail to filesystem
-	 * 
+	 *
 	 * @param string $filepath
 	 * @param array $data mail data
-	 * 
+	 *
 	 * @return boolean true if write success, false if not
 	 */
-	 public static function writeDataToFile($filepath, $data) {
-			$handle = @fopen($filepath, "w");
-			if(!$handle)
-				return false;
-			fwrite($handle, json_encode($data));
-			fclose($handle);
-			
-			return true;
-	 }
+	public static function writeDataToFile($filepath, $data)
+	{
+		$handle = @fopen($filepath, "w");
+		if (!$handle)
+			return false;
+		fwrite($handle, json_encode($data));
+		fclose($handle);
+
+		return true;
+	}
 
 	/**
 	 * Creates upload dir if it not existing.
@@ -268,10 +284,11 @@ class SMTPMailingQueue {
 	 *
 	 * @return string upload dir
 	 */
-	public static function getUploadDir($type = false) {
+	public static function getUploadDir($type = false)
+	{
 		$dir = wp_upload_dir()['basedir'] . '/smtp-mailing-queue/';
 		$created = wp_mkdir_p($dir);
-		if($created) {
+		if ($created) {
 			$handle = @fopen($dir . '.htaccess', "w");
 			fwrite($handle, 'DENY FROM ALL');
 			fclose($handle);
@@ -280,7 +297,8 @@ class SMTPMailingQueue {
 		if ('invalid' == $type) {
 			$dir = $dir . 'invalid/';
 			wp_mkdir_p($dir);
-		} if ('attachments' == $type){
+		}
+		if ('attachments' == $type) {
 			$dir = $dir . 'attachments/';
 			wp_mkdir_p($dir);
 		}
@@ -296,23 +314,22 @@ class SMTPMailingQueue {
 	 *
 	 * @return array Mail data
 	 */
-	public function loadDataFromFiles($ignoreLimit = false, $invalid = false) {
+	public function loadDataFromFiles($ignoreLimit = false, $invalid = false)
+	{
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
 		$emails = [];
 		$i = 0;
 
 		if ($invalid) {
 			$uploadType = 'invalid';
-		}
-		else
-		{
+		} else {
 			$uploadType = '';
 		}
-		
+
 		foreach (glob(self::getUploadDir($uploadType) . '*.json') as $filename) {
-			$emails[ $filename ] = json_decode( file_get_contents( $filename ), true );
+			$emails[$filename] = json_decode(file_get_contents($filename), true);
 			$i++;
-			if(!$ignoreLimit && !empty($advancedOptions['queue_limit']) && $i >= $advancedOptions['queue_limit'])
+			if (!$ignoreLimit && !empty($advancedOptions['queue_limit']) && $i >= $advancedOptions['queue_limit'])
 				break;
 		}
 		return $emails;
@@ -323,30 +340,27 @@ class SMTPMailingQueue {
 	 *
 	 * @param bool $checkKey
 	 */
-	public function processQueue($checkKey = true) {
+	public function processQueue($checkKey = true)
+	{
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
-		if($checkKey && (!isset($_GET['key']) || $advancedOptions['process_key'] != $_GET['key']))
+		if ($checkKey && (!isset($_GET['key']) || $advancedOptions['process_key'] != $_GET['key']))
 			return;
 
 		$max_retry = isset($advancedOptions['max_retry']) ? $advancedOptions['max_retry'] : 10;
 		$mails = $this->loadDataFromFiles();
 
-		foreach($mails as $file => $data) {
-			if($this->sendMail($data))
-			{
+		foreach ($mails as $file => $data) {
+			if ($this->sendMail($data)) {
 				$this->deleteFile($file);
 				require_once('SMTPMailingQueueAttachments.php');
 				SMTPMailingQueueAttachments::removeAttachments($data['attachments']);
-			}
-			else
-			{
+			} else {
 				// Increment the failures counter
 				$data['failures']++;
 				self::writeDataToFile($file, $data);
-				
+
 				// If failures reach max retry counter, move mail to invalid
-				if ($data['failures'] > $max_retry)
-				{
+				if ($data['failures'] > $max_retry) {
 					rename($file, self::getUploadDir('invalid') . substr($file, strrpos($file, "/") + 1));
 				}
 			}
@@ -362,7 +376,8 @@ class SMTPMailingQueue {
 	 *
 	 * @return bool Success
 	 */
-	public function sendMail($data) {
+	public function sendMail($data)
+	{
 		return wp_mail($data['to'], $data['subject'], $data['message'], $data['headers'], $data['attachments']);
 	}
 
@@ -371,22 +386,24 @@ class SMTPMailingQueue {
 	 *
 	 * @param string $file Absolute path to file
 	 */
-	public function deleteFile($file) {
+	public function deleteFile($file)
+	{
 		unlink($file);
 	}
 
 	/**
 	 * Sets WordPress phpmailer to SMTP and sets all options.
 	 *
-	 * @param \PHPMailer $phpmailer
+	 * @param PHPMailer $phpmailer
 	 */
-	public function initMailer($phpmailer) {
+	public function initMailer($phpmailer)
+	{
 		$options = get_option('smtp_mailing_queue_options');
 
-		if(!$options)
+		if (!$options)
 			return;
 
-		if(empty($options['host']))
+		if (empty($options['host']))
 			return;
 
 		// Set mailer to SMTP
@@ -410,7 +427,7 @@ class SMTPMailingQueue {
 		$phpmailer->Timeout = 30;
 
 		// Set authentication data
-		if(isset($options['use_authentication'])) {
+		if (isset($options['use_authentication'])) {
 			$phpmailer->SMTPAuth = TRUE;
 			$phpmailer->Username = $options['auth_username'];
 			$phpmailer->Password = $this->decrypt($options['auth_password']);
@@ -418,7 +435,7 @@ class SMTPMailingQueue {
 	}
 
 	/**
-	 * Encrypts a string (e.g. SMTP password) with mcrypt if installed.
+	 * Encrypts a string (e.g. SMTP password) with openssl_encrypt if installed.
 	 * Fallback to base64 for "obfuscation" (well, not really).
 	 *
 	 * @see http://wordpress.stackexchange.com/a/25792/45882
@@ -427,16 +444,40 @@ class SMTPMailingQueue {
 	 *
 	 * @return string
 	 */
-	public function encrypt($str){
-		if(!function_exists('mcrypt_get_iv_size') || !function_exists('mcrypt_create_iv') || !function_exists('mcrypt_encrypt'))
+	public function encrypt($str)
+	{
+		if (!function_exists('openssl_random_pseudo_bytes') || !function_exists('openssl_cipher_iv_length') || !function_exists('openssl_encrypt'))
 			return base64_encode($str);
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+
 		$h_key = hash('sha256', AUTH_SALT, TRUE);
-		return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $h_key, $str, MCRYPT_MODE_ECB, $iv));
+		$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+		$encrypted = openssl_encrypt($str, 'aes-256-cbc', $h_key, 0, $iv);
+		return base64_encode($encrypted . '::' . $iv);
 	}
 
 	/**
+	 * Decrypts a string (e.g. SMTP password) with openssl_decrypt, if installed.
+	 * Fallback to base64 for "obfuscation" (well, not really).
+	 *
+	 * @see http://wordpress.stackexchange.com/a/25792/45882
+	 *
+	 * @param string $str
+	 *
+	 * @return string
+	 */
+	public function decrypt($str)
+	{
+		if (!function_exists('openssl_decrypt'))
+			return base64_decode($str);
+
+		$h_key = hash('sha256', AUTH_SALT, TRUE);
+		list($encrypted_data, $iv) = explode('::', base64_decode($str), 2);
+		return openssl_decrypt($encrypted_data, 'aes-256-cbc', $h_key, 0, $iv);
+	}
+
+	/**
+	 * @Deprecated
+	 *
 	 * Decrypts a string (e.g. SMTP password) with mcrypt, if installed.
 	 * Fallback to base64 for "obfuscation" (well, not really).
 	 *
@@ -446,8 +487,9 @@ class SMTPMailingQueue {
 	 *
 	 * @return string
 	 */
-	public function decrypt($str){
-		if(!function_exists('mcrypt_get_iv_size') || !function_exists('mcrypt_create_iv') || !function_exists('mcrypt_encrypt'))
+	public function decrypt_1_1_0($str)
+	{
+		if (!function_exists('mcrypt_get_iv_size') || !function_exists('mcrypt_create_iv') || !function_exists('mcrypt_encrypt'))
 			return base64_decode($str);
 		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
 		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);

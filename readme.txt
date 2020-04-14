@@ -1,10 +1,10 @@
 === SMTP Mailing Queue ===
-Contributors: hildende
+Contributors: hildende, birmania
 Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
-Tested up to: 4.9.10
-Stable tag: 1.1.1
+Tested up to: 5.4.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -31,7 +31,7 @@ Coming soon:
 * Storing mailing data in database instead of files.
 * Using plugin for SMTP mails without using mailing queue.
 
-Feel free to suggest features or send feedback in the [support section](https://wordpress.org/support/plugin/smtp-mailing-queue), via [email](mailto:dennis@dennishildenbrand.com) or by creating a pull request on [github](https://github.com/hildende/smtp-mailing-queue).
+Feel free to suggest features or send feedback in the [support section](https://wordpress.org/support/plugin/smtp-mailing-queue), via [email](mailto:antoine.brultet@gmail.com) or by creating a pull request on [github](https://github.com/Birmania/smtp-mailing-queue).
 
 == Installation ==
 1. Upload the files to the `/wp-content/plugins/smtp-mailing-queue/` directory
@@ -119,6 +119,13 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.2.0 =
+* Bugfix: Fixed deprecated methods 'mcrypt_get_iv_size', 'mcrypt_create_iv', 'mcrypt_encrypt'
+
+* Bugfix: Fixed call to non-static method 'SMTPMailingQueueAttachments::storeAttachments'
+
+* Bugfix: Fixed undefined index 'dont_wait' when sending test mail
 
 = 1.1.1 =
 * Feature: Added advanced option to retry mail sending X time before declare invalid.

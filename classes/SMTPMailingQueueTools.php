@@ -204,7 +204,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 		$bcc = array_filter(array_map('trim', explode(',', $data['bcc'])));
 		foreach ($bcc as $email)
 			$data['headers'][] = 'Bcc:' . $email;
-		if($data['dont_wait'])
+		if(isset($data['dont_wait']) && $data['dont_wait'])
 			$this->reallySendTestmail($data);
 		else
 			$this->writeTestmailToFile($data);
