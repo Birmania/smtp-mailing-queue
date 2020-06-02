@@ -4,6 +4,12 @@ require_once('SMTPMailingQueueAdmin.php');
 class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 
 	/**
+	 * @var SMTPMailingQueue
+	 */
+	private $smtpMailingQueue;
+
+
+	/**
 	 * @var string Slug of this tab
 	 */
 	private $tabName = 'tools';
@@ -18,8 +24,9 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 */
 	private $prefill = false;
 
-	public function __construct() {
+	public function __construct(SMTPMailingQueue $smtpMailingQueue) {
 		parent::__construct();
+		$this->smtpMailingQueue = $smtpMailingQueue;
 		$this->init();
 	}
 
@@ -251,14 +258,12 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * Processes starting queue processing form
 	 */
 	public function startProcessQueue() {
-		global $smtpMailingQueue;
-
 		if(!check_admin_referer('smq-process_queue', 'smq-process_queue_nonce')) {
 			$this->showNotice(__("Looks like you're not allowed to do this", 'smtp-mailing-queue'));
 			return;
 		}
 
-		$smtpMailingQueue->callProcessQueue();
+		$this->smtpMailingQueue->callProcessQueue();
 
 		$this->showNotice(__('Emails sent', 'smtp-mailing-queue'), 'updated');
 	}
@@ -269,8 +274,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @param bool $invalid
 	 */
 	private function createListQueue($invalid = false) {
-		global $smtpMailingQueue;
-		$data = $smtpMailingQueue->loadDataFromFiles(true, $invalid);
+		$data = $this->smtpMailingQueue->loadDataFromFiles(true, $invalid);
 		if(!$data) {
 			echo '<p>' . __('No mails in queue', 'smtp-mailing-queue') . '</p>';
 			return;

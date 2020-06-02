@@ -4,6 +4,11 @@ require_once('SMTPMailingQueueAdmin.php');
 class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 
 	/**
+	 * @var SMTPMailingQueue
+	 */
+	private $smtpMailingQueue;
+
+	/**
 	 * @var array Stored options
 	 */
 	private $options;
@@ -23,8 +28,9 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 */
 	private $optionsSanitized = false;
 
-	public function __construct() {
+	public function __construct(SMTPMailingQueue $smtpMailingQueue) {
 		parent::__construct();
+		$this->smtpMailingQueue = $smtpMailingQueue;
 		$this->init();
 	}
 
@@ -143,8 +149,6 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 * @return array
 	 */
 	public function sanitize($input) {
-		global $smtpMailingQueue;
-
 		// Fix for issue that options are sanitized twice when no db entry exists
 		// "It seems the data is passed through the sanitize function twice.[...]
 		// This should only happen when the option is not yet in the wp_options table."
@@ -171,7 +175,7 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 		if(isset($input['auth_username']))
 			$sanitary_values['auth_username'] = sanitize_text_field($input['auth_username']);
 		if(isset($input['auth_password']))
-			$sanitary_values['auth_password'] = $smtpMailingQueue->encrypt($input['auth_password']);
+			$sanitary_values['auth_password'] = $this->smtpMailingQueue->encrypt($input['auth_password']);
 
 		return $sanitary_values;
 	}
@@ -270,11 +274,10 @@ class SMTPMailingQueueOptions extends SMTPMailingQueueAdmin{
 	 * Prints field for SMTP authentication password
 	 */
 	public function auth_password_callback() {
-		global $smtpMailingQueue;
 		printf(
 			'<input class="regular-text" type="password" name="%s[auth_password]" id="auth_password" value="%s">',
 			$this->optionName,
-			isset($this->options['auth_password']) ? esc_attr($smtpMailingQueue->decrypt($this->options['auth_password'])) : ''
+			isset($this->options['auth_password']) ? esc_attr($this->smtpMailingQueue->decrypt($this->options['auth_password'])) : ''
 		);
 	}
 }

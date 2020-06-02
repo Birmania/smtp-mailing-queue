@@ -4,6 +4,11 @@ require_once('SMTPMailingQueueAdmin.php');
 class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 
 	/**
+	 * @var SMTPMailingQueue
+	 */
+	private $smtpMailingQueue;
+
+	/**
 	 * @var array Stored options
 	 */
 	private $options;
@@ -18,8 +23,9 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 */
 	private $tabName = 'advanced';
 
-	public function __construct() {
+	public function __construct(SMTPMailingQueue $smtpMailingQueue) {
 		parent::__construct();
+		$this->smtpMailingQueue = $smtpMailingQueue;
 		$this->init();
 	}
 
@@ -122,19 +128,18 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 * @return array
 	 */
 	public function sanitize($input) {
-		global $smtpMailingQueue;
 		$sanitary_values = array();
 		if(isset( $input['queue_limit']))
 			$sanitary_values['queue_limit'] = intval($input['queue_limit']);
 		if(isset( $input['wpcron_interval'])) {
 			$sanitary_values['wpcron_interval'] = intval($input['wpcron_interval']);
-			$smtpMailingQueue->refreshWpCron();
+			$this->smtpMailingQueue->refreshWpCron();
 		}
 		if(isset($input['dont_use_wpcron'])) {
 			$sanitary_values['dont_use_wpcron'] = 'dont_use_wpcron';
 			wp_clear_scheduled_hook('smq_start_queue');
 		} else
-			$smtpMailingQueue->refreshWpCron();
+			$this->smtpMailingQueue->refreshWpCron();
 		if(isset($input['process_key']))
 			$sanitary_values['process_key'] = sanitize_text_field($input['process_key']);
 
@@ -208,13 +213,12 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	 * Prints checkbox field for selecting whether to use wp_cron or not
 	 */
 	public function dont_use_wpcron_callback() {
-		global $smtpMailingQueue;
 		printf(
 			'<input type="checkbox" name="%s[dont_use_wpcron]" id="dont_use_wpcron" value="dont_use_wpcron" %s> <label for="dont_use_wpcron">' . __('Use a real cronjob instead of wp_cron.', 'smtp-mailing-queue') . '</label>',
 			$this->optionName,
 			(isset($this->options['dont_use_wpcron']) && $this->options['dont_use_wpcron'] === 'dont_use_wpcron') ? 'checked' : ''
 		);
-		echo '<p class="description">' . sprintf(__('Call %s in cron to start processing queue.', 'smtp-mailing-queue'), '<strong>' . $smtpMailingQueue->getCronLink() . '</strong>') . '</p>';
+		echo '<p class="description">' . sprintf(__('Call %s in cron to start processing queue.', 'smtp-mailing-queue'), '<strong>' . $this->smtpMailingQueue->getCronLink() . '</strong>') . '</p>';
 	}
 
 	/**
