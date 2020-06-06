@@ -11,7 +11,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.2.2';
+	public $pluginVersion = '1.3.0';
 
 	public function __construct($pluginFile = null)
 	{
@@ -37,6 +37,8 @@ class SMTPMailingQueue
 		add_action('init', function () {
 			load_plugin_textdomain('smtp-mailing-queue', false, 'smtp-mailing-queue/languages/');
 		});
+		
+		add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScripts']);
 
 		add_action('smq_start_queue', [$this, 'callProcessQueue']);
 
@@ -48,6 +50,14 @@ class SMTPMailingQueue
 		add_filter('plugin_action_links_' . plugin_basename($this->pluginFile), [$this, 'addActionLinksToPluginPage']);
 		add_filter('plugin_row_meta', [$this, 'addDonateLinkToPluginPage'], 10, 2);
 		add_filter('cron_schedules', [$this, 'addWpCronInterval']);
+	}
+	
+	/**
+	 * Enqueue JS scripts for admin
+	 */
+	public function enqueueAdminScripts()
+	{
+		wp_enqueue_script( 'smq-select', plugins_url( '/js/select.js', $this->pluginFile ), ['jquery']);
 	}
 
 	/**
@@ -327,13 +337,22 @@ class SMTPMailingQueue
 		}
 
 		foreach (glob(self::getUploadDir($uploadType) . '*.json') as $filename) {
-			$emails[$filename] = json_decode(file_get_contents($filename), true);
+			$emails[$filename] = $this->loadDataFromFile($filename);
 			$i++;
 			if (!$ignoreLimit && !empty($advancedOptions['queue_limit']) && $i >= $advancedOptions['queue_limit'])
 				break;
 		}
 		return $emails;
 	}
+	
+	/**
+	 * Load one mail from file
+	 * @param string $file
+	 */
+	 public function loadDataFromFile($file)
+	 {
+		 return json_decode(file_get_contents($file), true);
+	 }
 
 	/**
 	 * Processes mailing queue.
@@ -351,9 +370,7 @@ class SMTPMailingQueue
 
 		foreach ($mails as $file => $data) {
 			if ($this->sendMail($data)) {
-				$this->deleteFile($file);
-				require_once('SMTPMailingQueueAttachments.php');
-				SMTPMailingQueueAttachments::removeAttachments($data['attachments']);
+				$this->deleteMail($file);
 			} else {
 				// Increment the failures counter
 				$data['failures']++;
@@ -379,6 +396,38 @@ class SMTPMailingQueue
 	public function sendMail($data)
 	{
 		return wp_mail($data['to'], $data['subject'], $data['message'], $data['headers'], $data['attachments']);
+	}
+
+	/**
+	 * Deletes email and attachments
+	 *
+	 * @param string $file Absolute path to file
+	 */
+	public function deleteMail($file)
+	{
+		if (file_exists($file))
+		{
+			$email = $this->loadDataFromFile($file);
+			$this->deleteFile($file);
+			if (array_key_exists('attachments', $email)) {
+				require_once('SMTPMailingQueueAttachments.php');
+				SMTPMailingQueueAttachments::removeAttachments($email['attachments']);
+			}
+		}
+	}
+
+
+	/**
+	 *
+	 */
+	public function retryMail($file) {
+		if (file_exists($file))
+		{
+			$email = $this->loadDataFromFile($file);
+			$email['failures'] = 0;
+			self::writeDataToFile($file, $email);
+			rename($file, self::getUploadDir() . substr($file, strrpos($file, "/") + 1));
+		}
 	}
 
 	/**
