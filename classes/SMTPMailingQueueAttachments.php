@@ -56,7 +56,7 @@ class SMTPMailingQueueAttachments {
 	
 	public static function removeAttachments($attachments) {
 		foreach ( $attachments as $index => $attachment ) {
-			wpcf7_rmdir_p( $attachment );
+			unlink( $attachment );
 
 			if ( ( $dir = dirname( $attachment ) )
 			&& false !== ( $files = scandir( $dir ) )

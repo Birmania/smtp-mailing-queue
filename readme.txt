@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.4.1
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,6 +23,7 @@ Tools:
 * You can send test mails to test your setup.
 * You can process the mailing queue manually instead of waiting for cronjob.
 * You can display the mailing queue in the backend to see emails that will be sent with next processing.
+* You can display the invalid mails and delete or retry them.
 
 Coming soon:
 
@@ -76,6 +77,8 @@ If you have another mail provider you will most likely get the SMTP settings on 
 * don't use wp_cron: Use a real cronjob instead of wp_cron.
 	Call http://www.example.org**?smqProcessQueue&key=MySecretKey**  in cronjob to start processing queue.
 * wp_cron interval: Choose how often wp_cron is started (in seconds)
+* minimum recipients: Mail sending will be delayed (through queue) only if recipients number is higher than this value
+* maximum retry: Mail sending will be retried until it reach this amount of failure
 
 
 = Additional =
@@ -90,6 +93,7 @@ Tools:
 * Test Mail: Test your email settings by sendig directly or adding test mail into queue.
 * Process Queue: Start queue processing manually. Your set queue limit will still be obeyed, if set.
 * List Queue: Show all mails in mailing queue.
+* List Invalid: Show all mails in failed state. You can purge this list or retry some mails (retry : bring back failure count to 0 and mail moved to "List Queue").
 
 == Frequently Asked Questions ==
 = Can this plugin be used to send emails via SMTP? =
@@ -119,6 +123,11 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.3.0 =
+* Feature: Added capability to purge all invalid mails (Button available at Invalid List tab)
+* Feature: Added bulk actions on invalid mails (retry, delete)
+* Bugfix: Fixed bug on attachment deletion
 
 = 1.2.2 =
 * Bugfix: Fixed bug when sending delayed mail

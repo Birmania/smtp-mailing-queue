@@ -44,6 +44,10 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 			add_action('init', [$this, 'sendTestMail']);
 		if(isset($_POST['smq-process_queue']))
 			add_action('init', [$this, 'startProcessQueue']);
+		if(isset($_POST['smq-purge_all_invalid']))
+			add_action('init', [$this, 'purgeAllInvalid']);
+		if(isset($_POST['smq-bulk_actions_invalid']))
+			add_action('init', [$this, 'bulkActionsInvalid']);
 		add_action( 'admin_menu', [$this, 'add_plugin_page']);
 	}
 
@@ -97,7 +101,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 				$this->createListQueue();
 				break;
 			case 'listInvalid':
-				$this->createListQueue(true);
+				$this->createListInvalid();
 				break;
 		}
 	}
@@ -255,6 +259,39 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	}
 
 	/**
+	 * Purge all invalid mails
+	 */
+	public function purgeAllInvalid() {
+		$data = $this->smtpMailingQueue->loadDataFromFiles(true, true);
+		foreach($data as $file => $email) {
+			$this->smtpMailingQueue->deleteMail($file);
+		}
+	}
+	
+	/**
+	 * Execute action on all selected mails
+	 */
+	public function bulkActionsInvalid() {
+		if (isset($_POST['action']) && isset($_POST['mails']))
+		{
+			$action = $_POST['action'];
+			$mails = $_POST['mails'];
+
+			if ($action === "retry") {
+				foreach($mails as $basename) {
+					$file = SMTPMailingQueue::getUploadDir('invalid') . $basename;
+					$email = $this->smtpMailingQueue->retryMail($file);
+				}
+			} else if ($action === "delete") {
+				foreach($mails as $basename) {
+					$file = SMTPMailingQueue::getUploadDir('invalid') . $basename;
+					$this->smtpMailingQueue->deleteMail($file);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Processes starting queue processing form
 	 */
 	public function startProcessQueue() {
@@ -273,8 +310,8 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 *
 	 * @param bool $invalid
 	 */
-	private function createListQueue($invalid = false) {
-		$data = $this->smtpMailingQueue->loadDataFromFiles(true, $invalid);
+	private function createListQueue() {
+		$data = $this->smtpMailingQueue->loadDataFromFiles(true, false);
 		if(!$data) {
 			echo '<p>' . __('No mails in queue', 'smtp-mailing-queue') . '</p>';
 			return;
@@ -313,6 +350,79 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 		<?php
 	}
 
+		/**
+	 * Prints table with mailing queue
+	 *
+	 */
+	private function createListInvalid() {
+		$data = $this->smtpMailingQueue->loadDataFromFiles(true, true);
+		if(!$data) {
+			echo '<p>' . __('No mails in queue', 'smtp-mailing-queue') . '</p>';
+			return;
+		}
+		?>
+		<?php
+		$this->createPurgeInvalidForm();
+		?>
+		<form method="post" action="">
+			<select name="action">
+				<option value="-1"><?php _e('Bulk actions', 'smtp-mailing-queue') ?></option>
+				<option value="retry"><?php _e('Retry', 'smtp-mailing-queue') ?></option>
+				<option value="delete"><?php _e('Delete', 'smtp-mailing-queue') ?></option>
+			</select>
+			<input type="submit" class="button button-primary" value="<?php _e('Apply', 'smtp-mailing-queue') ?>" />
+			<table class="widefat">
+				<thead>
+					<tr>
+						<th><input id="smq-select_all" type="checkbox"/></th>
+						<th><?php _e('Time', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('To', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('Subject', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('Message', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('Headers', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('Attachments', 'smtp-mailing-queue') ?></th>
+						<th><?php _e('Failures', 'smtp-mailing-queue') ?></th>
+					</tr>
+				</thead>
+				<?php $i = 1; ?>
+				<?php foreach($data as $filename => $mail): ?>
+					<?php
+					$dt = new DateTime("now", new DateTimeZone($this->getTimezoneString()));
+					$dt->setTimestamp($mail['time']);
+					?>
+					<tr class="<?php echo ($i % 2) ? 'alternate' : ''; ?>">
+						<td><input class="smq-select_option" type="checkbox" name="mails[]" value="<?php echo basename($filename) ?>"/></td>
+						<td><?php echo $dt->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>
+						<td><?php echo $mail['to'] ?></td>
+						<td><?php echo $mail['subject'] ?></td>
+						<td><?php echo nl2br($mail['message']) ?></td>
+						<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
+						<td><?php echo implode('<br />', $mail['attachments']); ?></td>
+						<td><?php echo $mail['failures'] ?></td>
+					</tr>
+					<?php $i++; ?>
+				<?php endforeach; ?>
+			</table>
+			<input type="hidden" name="smq-bulk_actions_invalid" value="1"/>
+			<?php wp_nonce_field('smq-process_queue', 'smq-process_queue_nonce'); ?>
+		</form>
+		<?php
+	}
+
+	/**
+	 * Prints form for purging invalid mails
+	 */
+	private function createPurgeInvalidForm() {
+		?>
+		<form method="post" action="">
+			<p class="submit">
+				<input type="hidden" name="smq-purge_all_invalid" value="1"/>
+				<input type="submit" class="button button-primary" value="<?php _e('Purge all these mails', 'smtp-mailing-queue') ?>" />
+				<?php wp_nonce_field('smq-process_queue', 'smq-process_queue_nonce'); ?>
+			</p>
+		</form>
+		<?php
+	}
 
 	/**
 	 * Finds valid timezone for timezone_string setting in wp
