@@ -124,6 +124,9 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 
 == Changelog ==
 
+= 1.3.1 =
+* Bugfix: Fixed bug on randomly lost emails.
+
 = 1.3.0 =
 * Feature: Added capability to purge all invalid mails (Button available at Invalid List tab)
 * Feature: Added bulk actions on invalid mails (retry, delete)

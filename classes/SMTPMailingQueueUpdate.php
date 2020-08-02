@@ -30,6 +30,9 @@ class SMTPMailingQueueUpdate
 		if (version_compare($installedVersion, '1.2.0', '<'))
 			$this->update_1_2_0();
 
+		if (version_compare($installedVersion, '1.3.1', '<'))
+			$this->update_1_3_1();
+
 		update_option('smq_version', $this->smtpMailingQueue->pluginVersion);
 	}
 
@@ -75,5 +78,30 @@ class SMTPMailingQueueUpdate
 		$options['auth_password'] = $this->smtpMailingQueue->encrypt($decryptedPassword);
 
 		update_option('smtp_mailing_queue_options', $options);
+	}
+
+	/**
+	 * Due to a bug in 1.3.0 we need to update the stored emails filename.
+	 */
+	protected function update_1_3_1()
+	{
+		$queue = $this->smtpMailingQueue->loadDataFromFiles(true, false);
+		$errors = $this->smtpMailingQueue->loadDataFromFiles(true, true);
+
+		foreach ($queue as $file => $email) {
+			$this->smtpMailingQueue->deleteMail($file);
+			SMTPMailingQueue::storeMail(
+				$email['to'], $email['subject'], $email['message'], $email['headers'],
+				$email['attachments'], $email['time']
+			);
+		}
+
+		foreach ($errors as $file => $email) {
+			$this->smtpMailingQueue->deleteMail($file);
+			SMTPMailingQueue::storeMail(
+				$email['to'], $email['subject'], $email['message'], $email['headers'],
+				$email['attachments'], $email['time'], true
+			);
+		}
 	}
 }
