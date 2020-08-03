@@ -247,11 +247,10 @@ class SMTPMailingQueue
 	 * @param array|string $headers
 	 * @param array $attachments
 	 * @param string $time
-	 * @param bool $invalid
 	 *
 	 * @return bool
 	 */
-	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null, $invalid = false)
+	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null)
 	{
 		require_once ABSPATH . WPINC . '/class-phpmailer.php';
 
@@ -263,13 +262,7 @@ class SMTPMailingQueue
 		$failures = 0;
 		$data = compact('to', 'subject', 'message', 'headers', 'attachments', 'time', 'failures');
 
-		if ($invalid) {
-			$uploadType = 'invalid';
-		} else {
-			$uploadType = '';
-		}
-
-		$fileName = self::getUploadDir($uploadType) . uniqid('', true) . '.json';
+		$fileName = self::getUploadDir() . uniqid('', true) . '.json';
 
 		return self::writeDataToFile($fileName, $data);
 	}
