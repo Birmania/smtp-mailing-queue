@@ -207,7 +207,7 @@ class SMTPMailingQueue
 	{
 		$advanced = get_option('smtp_mailing_queue_advanced');
 		$interval = isset($advanced['wpcron_interval']) ? $advanced['wpcron_interval']: null;
-		if ($interval) {
+		if (isset($interval)) {
 			$schedules['smq'] = [
 				'interval' => $interval,
 				'display' => __('Interval for sending mail', 'smtp-mailing-queue')
