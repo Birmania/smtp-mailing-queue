@@ -21,14 +21,16 @@ class SMTPMailingQueueUpdate
 
 		$installedVersion = get_option("smq_version");
 
-		if (version_compare($installedVersion, $this->smtpMailingQueue->pluginVersion, '='))
-			return;
+		if ($installedVersion) {
+			if (version_compare($installedVersion, $this->smtpMailingQueue->pluginVersion, '='))
+				return;
 
-		if (version_compare($installedVersion, '1.0.6', '<'))
-			$this->update_1_0_6();
+			if (version_compare($installedVersion, '1.0.6', '<'))
+				$this->update_1_0_6();
 
-		if (version_compare($installedVersion, '1.2.0', '<'))
-			$this->update_1_2_0();
+			if (version_compare($installedVersion, '1.2.0', '<'))
+				$this->update_1_2_0();
+		}
 
 		update_option('smq_version', $this->smtpMailingQueue->pluginVersion);
 	}

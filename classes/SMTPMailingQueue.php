@@ -367,7 +367,8 @@ class SMTPMailingQueue
 	public function processQueue($checkKey = true)
 	{
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
-		if ($checkKey && (!isset($_GET['key']) || $advancedOptions['process_key'] != $_GET['key']))
+		$processKeyOption = isset($advancedOptions['process_key']) ? $advancedOptions['process_key'] : null;
+		if ($checkKey && (!isset($_GET['key']) || !isset($processKeyOption) || $processKeyOption != $_GET['key']))
 			return;
 
 		$max_retry = isset($advancedOptions['max_retry']) ? $advancedOptions['max_retry'] : 10;
