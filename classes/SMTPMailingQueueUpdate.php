@@ -68,6 +68,12 @@ class SMTPMailingQueueUpdate
 	{
 		$options = get_option('smtp_mailing_queue_options');
 
+		if (!$options) // options may not be set
+			return;
+
+		if (empty($options['auth_password']))
+			return;
+
 		$authPassword = $options['auth_password'];
 
 		$decryptedPassword = $this->smtpMailingQueue->decrypt_1_1_0($authPassword);

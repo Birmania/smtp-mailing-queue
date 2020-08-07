@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.4.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -125,7 +125,8 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 == Changelog ==
 
 = 1.3.1 =
-* Bugfix: Fixed bug on randomly lost emails.
+* Bugfix: Fixed bug on randomly lost emails when requests are too close to each others (Thanks @manandre)
+* Bugfix: Remove some notices and warning on first plugin activation
 
 = 1.3.0 =
 * Feature: Added capability to purge all invalid mails (Button available at Invalid List tab)

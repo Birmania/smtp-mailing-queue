@@ -11,7 +11,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.3.0';
+	public $pluginVersion = '1.3.1';
 
 	public function __construct($pluginFile = null)
 	{
@@ -174,8 +174,10 @@ class SMTPMailingQueue
 				}
 			}
 		}
-		$key = get_option('smtp_mailing_queue_advanced')['process_key'];
-		return $wpUrl . '?smqProcessQueue&key=' . $key;
+		$advanced = get_option('smtp_mailing_queue_advanced');
+		$processKey = isset($advanced['process_key']) ? $advanced['process_key'] : '';
+
+		return $wpUrl . '?smqProcessQueue&key=' . $processKey;
 	}
 
 	/**
@@ -203,11 +205,14 @@ class SMTPMailingQueue
 	 */
 	public function addWpCronInterval($schedules)
 	{
-		$interval = get_option('smtp_mailing_queue_advanced')['wpcron_interval'];
-		$schedules['smq'] = [
-			'interval' => $interval,
-			'display' => __('Interval for sending mail', 'smtp-mailing-queue')
-		];
+		$advanced = get_option('smtp_mailing_queue_advanced');
+		$interval = isset($advanced['wpcron_interval']) ? $advanced['wpcron_interval']: null;
+		if ($interval) {
+			$schedules['smq'] = [
+				'interval' => $interval,
+				'display' => __('Interval for sending mail', 'smtp-mailing-queue')
+			];
+		}
 		return $schedules;
 	}
 
