@@ -17,7 +17,7 @@ class SMTPMailingQueueUpdate
 	 */
 	public function update()
 	{
-		require_once ABSPATH . WPINC . '/class-phpmailer.php';
+		require_once __DIR__ . '/PHPMailer/class-phpmailer.php';
 
 		$installedVersion = get_option("smq_version");
 

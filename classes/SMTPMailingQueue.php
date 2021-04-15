@@ -7,16 +7,22 @@ class SMTPMailingQueue
 	 * @var string Abs path to plugin main file.
 	 */
 	protected $pluginFile;
+	
+	/**
+	 * @var Object used  to call original pluggeable methods
+	 */
+	private $originalPluggeable;
 
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.3.1';
+	public $pluginVersion = '1.4.0';
 
-	public function __construct($pluginFile = null)
+	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
 		if ($pluginFile)
 			$this->pluginFile = $pluginFile;
+		$this->originalPluggeable = $originalPluggeable;
 		$this->init();
 	}
 
@@ -238,8 +244,7 @@ class SMTPMailingQueue
 		if (count(explode(',', $to)) >= $minRecipients)
 			return self::storeMail($to, $subject, $message, $headers, $attachments);
 		else {
-			require_once('SMTPMailingQueueOriginal.php');
-			return SMTPMailingQueueOriginal::wp_mail($to, $subject, $message, $headers, $attachments);
+			return $this->originalPluggeable->wp_mail($to, $subject, $message, $headers, $attachments);
 		}
 	}
 
@@ -257,7 +262,7 @@ class SMTPMailingQueue
 	 */
 	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null)
 	{
-		require_once ABSPATH . WPINC . '/class-phpmailer.php';
+		require_once __DIR__ . '/PHPMailer/class-phpmailer.php';
 
 		// Store attachments
 		require_once('SMTPMailingQueueAttachments.php');
