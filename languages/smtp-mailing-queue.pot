@@ -3,7 +3,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: SMTP Mailing Queue 1.3.1\n"
+"Project-Id-Version: SMTP Mailing Queue 1.4.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/smtp-mailing-"
 "queue\n"
 "POT-Creation-Date: 2020-08-07 16:08+0200\n"

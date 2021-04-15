@@ -7,7 +7,11 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @var SMTPMailingQueue
 	 */
 	private $smtpMailingQueue;
-
+	
+	/**
+	 * @var Object used  to call original pluggeable methods
+	 */
+	private $originalPluggeable;
 
 	/**
 	 * @var string Slug of this tab
@@ -24,9 +28,10 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 */
 	private $prefill = false;
 
-	public function __construct(SMTPMailingQueue $smtpMailingQueue) {
+	public function __construct(SMTPMailingQueue $smtpMailingQueue, OriginalPluggeable $originalPluggeable) {
 		parent::__construct();
 		$this->smtpMailingQueue = $smtpMailingQueue;
+		$this->originalPluggeable = $originalPluggeable;
 		$this->init();
 	}
 
@@ -239,8 +244,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @param array $data Testmail data
 	 */
 	protected function reallySendTestmail($data) {
-		require_once('SMTPMailingQueueOriginal.php');
-		if(SMTPMailingQueueOriginal::wp_mail($data['to'], $data['subject'], $data['message'], $data['headers']))
+		if($this->originalPluggeable->wp_mail($data['to'], $data['subject'], $data['message'], $data['headers']))
 			$this->showNotice(__('Mail successfully sent.', 'smtp-mailing-queue'), 'updated');
 		else
 			$this->showNotice(__('Error sending mail', 'smtp-mailing-queue'));

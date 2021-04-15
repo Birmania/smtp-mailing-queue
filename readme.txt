@@ -3,8 +3,8 @@ Contributors: hildende, birmania
 Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
-Tested up to: 5.4.1
-Stable tag: 1.3.1
+Tested up to: 5.7.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -123,6 +123,9 @@ Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations
 3. Tools
 
 == Changelog ==
+
+= 1.4.0 =
+* Feature: Compatibility with WP version >=5.5 (new PHPMailer)
 
 = 1.3.1 =
 * Bugfix: Fixed bug on randomly lost emails when requests are too close to each others (Thanks @manandre)

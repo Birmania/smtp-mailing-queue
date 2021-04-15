@@ -4,7 +4,7 @@ Plugin Name: SMTP Mailing Queue
 Plugin URI: http://dennishildenbrand.com
 Description: SMTP Mailing Queue
 Author: Dennis Hildenbrand
-Version: 1.3.1
+Version: 1.4.0
 Author URI: http://dennishildenbrand.com
 Text Domain: smtp-mailing-queue
 */
@@ -35,12 +35,14 @@ if(is_admin() && version_compare(PHP_VERSION, '5.4', '<')) {
 	require_once('classes/SMTPMailingQueueOptions.php');
 	require_once('classes/SMTPMailingQueueAdvancedOptions.php');
 	require_once('classes/SMTPMailingQueueTools.php');
+	require_once('classes/OriginalPluggeable/OriginalPluggeable.php');
 
-	$smtpMailingQueue = new SMTPMailingQueue(__FILE__);
+	$originalPluggeable = new OriginalPluggeable();
+	$smtpMailingQueue = new SMTPMailingQueue(__FILE__, $originalPluggeable);
 	$smtpMailingQueueUpdate = new SMTPMailingQueueUpdate($smtpMailingQueue);
 	new SMTPMailingQueueOptions($smtpMailingQueue);
 	new SMTPMailingQueueAdvancedOptions($smtpMailingQueue);
-	new SMTPMailingQueueTools($smtpMailingQueue);
+	new SMTPMailingQueueTools($smtpMailingQueue, $originalPluggeable);
 
 	// overwriting wp_mail() to store mailing data instead of sending immediately
 	if (!function_exists('wp_mail') && !isset($_GET['smqProcessQueue'])) {
