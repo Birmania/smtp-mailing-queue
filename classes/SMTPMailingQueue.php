@@ -39,14 +39,20 @@ class SMTPMailingQueue
 				$this->processQueue();
 			});
 		}
+		
+		if (isset($_GET['smqDismissNotice'])) {
+			delete_option('smtp_mailing_queue_notice');
+		}
 
 		add_action('init', function () {
 			load_plugin_textdomain('smtp-mailing-queue', false, 'smtp-mailing-queue/languages/');
 		});
-		
+
 		add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScripts']);
 
 		add_action('smq_start_queue', [$this, 'callProcessQueue']);
+
+		add_action( 'admin_notices', [$this, 'displayAdminNotice'] );
 
 		// Hooks
 		register_activation_hook($this->pluginFile, [$this, 'onActivation']);
@@ -158,7 +164,21 @@ class SMTPMailingQueue
 	 */
 	public function callProcessQueue()
 	{
-		wp_remote_get($this->getCronLink());
+		$response = wp_remote_get($this->getCronLink());
+		if (is_wp_error($response)) {
+			update_option('smtp_mailing_queue_notice', [
+				'class' => 'notice-error',
+				'message' => sprintf("SMTP Mailing Queue : Unable to call process queue due to following error '%s'", $response->get_error_message()),
+			]);
+		}
+	}
+
+	public function displayAdminNotice()
+	{
+		$notice = get_option('smtp_mailing_queue_notice');
+		if ($notice) {
+			printf('<div class="notice %1$s"><p>%2$s</p><a href="?smqDismissNotice">Dismiss</a></div>', esc_attr($notice['class']), esc_html($notice['message']));
+		}
 	}
 
 	/**
@@ -182,8 +202,7 @@ class SMTPMailingQueue
 		}
 		$advanced = get_option('smtp_mailing_queue_advanced');
 		$processKey = isset($advanced['process_key']) ? $advanced['process_key'] : '';
-
-		return $wpUrl . '?smqProcessQueue&key=' . $processKey;
+		return $wpUrl . '?smqProcessQueue&key=' . $processKey . '&time=' . time();
 	}
 
 	/**
