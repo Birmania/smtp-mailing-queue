@@ -16,7 +16,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.0';
+	public $pluginVersion = '1.4.1';
 
 	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
