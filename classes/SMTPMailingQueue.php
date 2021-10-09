@@ -1,5 +1,7 @@
 <?php
 
+require_once('SMTPMailingQueueEnums.php');
+
 class SMTPMailingQueue
 {
 
@@ -16,7 +18,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.1';
+	public $pluginVersion = '1.4.2';
 
 	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
@@ -132,7 +134,8 @@ class SMTPMailingQueue
 			'dont_use_wpcron' => false,
 			'process_key' => wp_generate_password(16, false, false),
 			'min_recipients' => 1,
-			'max_retry' => 10
+			'max_retry' => 10,
+			'sent_storage_size' => 0
 		];
 
 		$advanced = get_option('smtp_mailing_queue_advanced');
@@ -164,7 +167,20 @@ class SMTPMailingQueue
 	 */
 	public function callProcessQueue()
 	{
-		$response = wp_remote_get($this->getCronLink());
+		$startTime = microtime(true);
+		$response = wp_remote_get($this->getCronLink(), 
+			array(
+				'timeout' => $this->getQueueProcessingTimeout(),
+			)
+		);
+		$endTime = microtime(true);
+		$executionTime = ($endTime - $startTime);
+		
+		$currentMaxProcessingDelay = get_transient('smtp_mailing_queue_max_processing_delay');
+		if (!isset($currentMaxProcessingDelay) || $currentMaxProcessingDelay < $executionTime) {
+			set_transient('smtp_mailing_queue_max_processing_delay', $executionTime, 60*60*24);
+		}
+		
 		if (is_wp_error($response)) {
 			update_option('smtp_mailing_queue_notice', [
 				'class' => 'notice-error',
@@ -323,7 +339,7 @@ class SMTPMailingQueue
 	 *
 	 * @return string upload dir
 	 */
-	public static function getUploadDir($type = false)
+	public static function getUploadDir($type = UploadType::Queued)
 	{
 		$dir = wp_upload_dir()['basedir'] . '/smtp-mailing-queue/';
 		$created = wp_mkdir_p($dir);
@@ -333,15 +349,21 @@ class SMTPMailingQueue
 			fclose($handle);
 		}
 
-		if ('invalid' == $type) {
+		if (UploadType::Sent == $type) {
+			$dir = $dir . 'sent/';
+			wp_mkdir_p($dir);
+		}
+		
+		if (UploadType::Invalid == $type) {
 			$dir = $dir . 'invalid/';
 			wp_mkdir_p($dir);
 		}
-		if ('attachments' == $type) {
+		if (UploadType::Attachment == $type) {
 			$dir = $dir . 'attachments/';
 			wp_mkdir_p($dir);
 		}
 
+		// Default $dir is UploadType::Queued
 		return $dir;
 	}
 
@@ -353,17 +375,11 @@ class SMTPMailingQueue
 	 *
 	 * @return array Mail data
 	 */
-	public function loadDataFromFiles($ignoreLimit = false, $invalid = false)
+	public function loadDataFromFiles($ignoreLimit = false, $uploadType = UploadType::Queued)
 	{
 		$advancedOptions = get_option('smtp_mailing_queue_advanced');
 		$emails = [];
 		$i = 0;
-
-		if ($invalid) {
-			$uploadType = 'invalid';
-		} else {
-			$uploadType = '';
-		}
 
 		foreach (glob(self::getUploadDir($uploadType) . '*.json') as $filename) {
 			$emails[$filename] = $this->loadDataFromFile($filename);
@@ -395,20 +411,25 @@ class SMTPMailingQueue
 		if ($checkKey && (!isset($_GET['key']) || !isset($processKeyOption) || $processKeyOption != $_GET['key']))
 			return;
 
-		$max_retry = isset($advancedOptions['max_retry']) ? $advancedOptions['max_retry'] : 10;
+		$maxRetry = isset($advancedOptions['max_retry']) ? $advancedOptions['max_retry'] : 10;
 		$mails = $this->loadDataFromFiles();
 
 		foreach ($mails as $file => $data) {
 			if ($this->sendMail($data)) {
-				$this->deleteMail($file);
+				// Store current date as sent date
+				$data['sent_time'] = time();
+				self::writeDataToFile($file, $data);
+				
+				rename($file, self::getUploadDir(UploadType::Sent) . substr($file, strrpos($file, "/") + 1));
+				$this->purgeSentMails();
 			} else {
 				// Increment the failures counter
 				$data['failures']++;
 				self::writeDataToFile($file, $data);
 
 				// If failures reach max retry counter, move mail to invalid
-				if ($data['failures'] > $max_retry) {
-					rename($file, self::getUploadDir('invalid') . substr($file, strrpos($file, "/") + 1));
+				if ($data['failures'] > $maxRetry) {
+					rename($file, self::getUploadDir(UploadType::Invalid) . substr($file, strrpos($file, "/") + 1));
 				}
 			}
 		}
@@ -457,6 +478,23 @@ class SMTPMailingQueue
 			$email['failures'] = 0;
 			self::writeDataToFile($file, $email);
 			rename($file, self::getUploadDir() . substr($file, strrpos($file, "/") + 1));
+		}
+	}
+	
+	public function purgeSentMails() {
+		$advancedOptions = get_option('smtp_mailing_queue_advanced');
+		$sentStorageSize = isset($advancedOptions['sent_storage_size']) ? $advancedOptions['sent_storage_size'] : 0;
+		
+		$mails = $this->loadDataFromFiles(false, UploadType::Sent);
+		
+		if ($sentStorageSize) {
+			$mailsToPurge = array_slice($mails, 0, -$sentStorageSize);
+		} else {
+			$mailsToPurge = $mails;
+		}
+		
+		foreach ($mailsToPurge as $file => $data) {
+			$this->deleteMail($file);
 		}
 	}
 
@@ -574,5 +612,12 @@ class SMTPMailingQueue
 		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
 		$h_key = hash('sha256', AUTH_SALT, TRUE);
 		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $h_key, base64_decode($str), MCRYPT_MODE_ECB, $iv));
+	}
+	
+	/**
+	 * Time available before processing mails timeout, in seconds.
+	*/
+	public function getQueueProcessingTimeout() {
+		return WP_CRON_LOCK_TIMEOUT / 2;
 	}
 }

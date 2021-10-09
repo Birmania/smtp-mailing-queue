@@ -19,7 +19,7 @@ class SMTPMailingQueueAttachments {
 	
 		foreach ($attachments as $attachment)
 		{
-			$uploads_dir = SMTPMailingQueue::getUploadDir('attachments');
+			$uploads_dir = SMTPMailingQueue::getUploadDir(UploadType::Attachment);
 			$uploads_dir = SMTPMailingQueueAttachments::initRandomDir( $uploads_dir );
 		
 			$filename = basename($attachment);
