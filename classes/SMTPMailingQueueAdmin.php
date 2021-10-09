@@ -45,6 +45,7 @@ class SMTPMailingQueueAdmin {
 				<a href="?page=smtp-mailing-queue&tab=settings" class="nav-tab <?php echo $this->activeTab == 'settings' ? 'nav-tab-active' : '' ?>"><?=__('SMTP Settings', 'smtp-mailing-queue')?></a>
 				<a href="?page=smtp-mailing-queue&tab=advanced" class="nav-tab <?php echo $this->activeTab == 'advanced' ? 'nav-tab-active' : '' ?>"><?=__('Advanced Settings', 'smtp-mailing-queue')?></a>
 				<a href="?page=smtp-mailing-queue&tab=tools" class="nav-tab <?php echo $this->activeTab == 'tools' ? 'nav-tab-active' : '' ?>"><?=__('Tools', 'smtp-mailing-queue')?></a>
+				<a href="?page=smtp-mailing-queue&tab=supervisors" class="nav-tab <?php echo $this->activeTab == 'supervisors' ? 'nav-tab-active' : '' ?>"><?=__('Supervisors', 'smtp-mailing-queue')?></a>
 			</h2>
 
 			<?php call_user_func([$this, 'loadPageContent']); ?>

@@ -118,6 +118,14 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			'smtp-mailing-queue-advanced',                           // page
 			'settings_section'                                       // section
 		);
+
+		add_settings_field(
+			'sent_storage_size',                                     // id
+			__('Sent mail storage size', 'smtp-mailing-queue'),      // title
+			[$this, 'sent_storage_size'],                            // callback
+			'smtp-mailing-queue-advanced',                           // page
+			'settings_section'                                       // section
+		);
 	}
 
 	/**
@@ -149,6 +157,9 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 		if(isset($input['max_retry']))
 			$sanitary_values['max_retry'] = intval($input['max_retry']);
 		
+		if(isset($input['sent_storage_size']))
+			$sanitary_values['sent_storage_size'] = intval($input['sent_storage_size']);
+		
 		return $sanitary_values;
 	}
 
@@ -174,7 +185,7 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	}
 
 	/**
-	 * Prints queue limit field
+	 * Prints min recipients field
 	 */
 	public function min_recipients_callback() {
 		printf(
@@ -186,7 +197,7 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 	}
 	
 	/**
-	 * Prints queue limit field
+	 * Prints max retry field
 	 */
 	public function max_retry_callback() {
 		printf(
@@ -195,6 +206,19 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 			isset($this->options['max_retry']) ? esc_attr($this->options['max_retry']) : ''
 		);
 		echo '<p class="description">' . __('Maximum number of retry for mail sending.', 'smtp-mailing-queue') . '</p>';
+	}
+	
+	/**
+	 * Prints sent storage size field
+	 */
+	public function sent_storage_size() {
+		printf(
+			'<input class="small-text" type="number" name="%s[sent_storage_size]" id="sent_storage_size" value="%s">',
+			$this->optionName,
+			isset($this->options['sent_storage_size']) ? esc_attr($this->options['sent_storage_size']) : ''
+		);
+		echo '<p class="description">' . __('Maximum number of sent mail stored in the history.', 'smtp-mailing-queue') . '</p>';
+		echo '<p class="description">' . __('Important note : Zero means history disabled which is more secure.', 'smtp-mailing-queue') . '</p>';
 	}
 
 	/**

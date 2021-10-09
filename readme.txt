@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.7.1
-Stable tag: 1.4.1
+Stable tag: 1.4.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -22,13 +22,16 @@ Tools:
 
 * You can send test mails to test your setup.
 * You can process the mailing queue manually instead of waiting for cronjob.
+
+
+Supervisors:
+* You can display basic informations about mail processing performances
 * You can display the mailing queue in the backend to see emails that will be sent with next processing.
 * You can display the invalid mails and delete or retry them.
+* You can display the sent mails and delete them.
 
 Coming soon:
 
-* Logging of mails and errors.
-* Archive of sent mail.
 * Storing mailing data in database instead of files.
 * Using plugin for SMTP mails without using mailing queue.
 
@@ -92,8 +95,13 @@ Tools:
 
 * Test Mail: Test your email settings by sendig directly or adding test mail into queue.
 * Process Queue: Start queue processing manually. Your set queue limit will still be obeyed, if set.
+
+Supervisors:
+
+* Processing: Get basic informations about your current processing capacity how much it is used.
 * List Queue: Show all mails in mailing queue.
 * List Invalid: Show all mails in failed state. You can purge this list or retry some mails (retry : bring back failure count to 0 and mail moved to "List Queue").
+* List Sent: Show all mails sent. You can purge this list. As  mails are not encrypted, it is recommended to use this option mostly for debug/analysis purposes.
 
 == Frequently Asked Questions ==
 = Can this plugin be used to send emails via SMTP? =
@@ -114,15 +122,24 @@ Not at the moment, but this will be added in a future release.
 
 = I like this plugin. Can I buy you a beer? =
 
-Sure, just [head over here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4)
+Sure, here are the donation links of top contributors :
+[Hildende : Founder](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4)
+[Birmania : Maintainer](https://www.paypal.com/donate/?hosted_button_id=9LUJKR4XMJP8W)
 
 == Screenshots ==
 
 1. SMTP Setting
 2. Advanced Settings
 3. Tools
+4. Supervisors
 
 == Changelog ==
+
+= 1.4.2 =
+* Feature: Added capacity to store, list and purge sent mails
+* Feature: Display basic informations about processing (max. time it take per run) to help adjust queue limit
+* Feature: Mail lists are moved from "Tools" to a new tab called "Supervisors"
+* Bugfix: Mails processing through wp-cron now use a timetout linked to wp-cron configuration (WP_CRON_LOCK_TIMEOUT / 2)
 
 = 1.4.1 =
 * Feature: Display admin notice if error occured while calling queue processing

@@ -1,5 +1,7 @@
 <?php
 
+require_once('SMTPMailingQueueEnums.php');
+
 class SMTPMailingQueueUpdate
 {
 
@@ -28,8 +30,14 @@ class SMTPMailingQueueUpdate
 			if (version_compare($installedVersion, '1.0.6', '<'))
 				$this->update_1_0_6();
 
+			if (version_compare($installedVersion, '1.1.1', '<'))
+				$this->update_1_1_1();
+
 			if (version_compare($installedVersion, '1.2.0', '<'))
 				$this->update_1_2_0();
+
+			if (version_compare($installedVersion, '1.4.2', '<'))
+				$this->update_1_4_2();
 		}
 
 		update_option('smq_version', $this->smtpMailingQueue->pluginVersion);
@@ -40,8 +48,8 @@ class SMTPMailingQueueUpdate
 	 */
 	protected function update_1_0_6()
 	{
-		$queue = $this->smtpMailingQueue->loadDataFromFiles(true, false);
-		$errors = $this->smtpMailingQueue->loadDataFromFiles(true, true);
+		$queue = $this->smtpMailingQueue->loadDataFromFiles(true, UploadType::Queued);
+		$errors = $this->smtpMailingQueue->loadDataFromFiles(true, UploadType::Invalid);
 
 		foreach ($queue as $file => $email) {
 			if (!PHPMailer::validateAddress($email['to'])) {
@@ -64,6 +72,19 @@ class SMTPMailingQueueUpdate
 	}
 
 	/**
+	 * Version 1.1.1 added a new option settings
+	 */
+	protected function update_1_1_1()
+	{
+		$advanced = get_option('smtp_mailing_queue_advanced');
+		$maxRetry = isset($advanced['max_retry']) ? $advanced['max_retry']: 10;
+		
+		$advanced['max_retry'] = $maxRetry;
+		
+		update_option('smtp_mailing_queue_advanced', $advanced);
+	}
+
+	/**
 	 * Due to a deprecated method in 1.1.0 we need to convert auth password.
 	 */
 	protected function update_1_2_0()
@@ -83,5 +104,18 @@ class SMTPMailingQueueUpdate
 		$options['auth_password'] = $this->smtpMailingQueue->encrypt($decryptedPassword);
 
 		update_option('smtp_mailing_queue_options', $options);
+	}
+	
+	/**
+	 * Version 1.4.2 added a new option settings
+	 */
+	protected function update_1_4_2()
+	{
+		$advanced = get_option('smtp_mailing_queue_advanced');
+		$sentStorageSize = isset($advanced['sent_storage_size']) ? $advanced['sent_storage_size']: 0;
+		
+		$advanced['sent_storage_size'] = $sentStorageSize;
+		
+		update_option('smtp_mailing_queue_advanced', $advanced);
 	}
 }
