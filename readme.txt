@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.7.1
-Stable tag: 1.4.2
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,10 @@ Sure, here are the donation links of top contributors :
 4. Supervisors
 
 == Changelog ==
+
+= 1.4.3 =
+* Feature : Added sanity check to ensure that smq_start_queue is properly requeued
+* Feature : Move processing queue error from global admin to associated supervisor page
 
 = 1.4.2 =
 * Feature: Added capacity to store, list and purge sent mails

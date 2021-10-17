@@ -104,6 +104,11 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 	public function createProcessing() {
 		$availableDelay = $this->smtpMailingQueue->getQueueProcessingTimeout();
 		$delayUsed = get_transient('smtp_mailing_queue_max_processing_delay');
+		$processingNotice = get_transient('smtp_mailing_queue_processing_notice');
+
+		if ($processingNotice) {
+			printf('<div class="notice %1$s"><p>%2$s</p></div>', esc_attr($processingNotice['class']), esc_html($processingNotice['message']));
+		}
 		
 		?>
 		<ul>
