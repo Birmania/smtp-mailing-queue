@@ -37,6 +37,7 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 		if(is_admin() && $this->activeTab == $this->tabName)
 			add_action('admin_menu', [$this, 'add_plugin_page']);
 		add_action('admin_init', [$this, 'page_init']);
+		add_action('update_option_' . $this->optionName, [$this->smtpMailingQueue, 'resetWpCron']);
 	}
 
 	/**
@@ -139,15 +140,13 @@ class SMTPMailingQueueAdvancedOptions extends SMTPMailingQueueAdmin {
 		$sanitary_values = array();
 		if(isset( $input['queue_limit']))
 			$sanitary_values['queue_limit'] = intval($input['queue_limit']);
-		if(isset( $input['wpcron_interval'])) {
+
+		if(isset( $input['wpcron_interval']))
 			$sanitary_values['wpcron_interval'] = intval($input['wpcron_interval']);
-			$this->smtpMailingQueue->refreshWpCron();
-		}
-		if(isset($input['dont_use_wpcron'])) {
+
+		if(isset($input['dont_use_wpcron']))
 			$sanitary_values['dont_use_wpcron'] = 'dont_use_wpcron';
-			wp_clear_scheduled_hook('smq_start_queue');
-		} else
-			$this->smtpMailingQueue->refreshWpCron();
+
 		if(isset($input['process_key']))
 			$sanitary_values['process_key'] = sanitize_text_field($input['process_key']);
 

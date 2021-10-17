@@ -18,7 +18,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.2';
+	public $pluginVersion = '1.4.3';
 
 	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
@@ -53,6 +53,7 @@ class SMTPMailingQueue
 		add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScripts']);
 
 		add_action('smq_start_queue', [$this, 'callProcessQueue']);
+		add_action('smq_sanity_checks', [$this, 'doSanityChecks']);
 
 		add_action( 'admin_notices', [$this, 'displayAdminNotice'] );
 
@@ -117,8 +118,19 @@ class SMTPMailingQueue
 	 */
 	public function onActivation()
 	{
-		$this->refreshWpCron();
 		$this->setOptionsDefault();
+		$this->refreshWpCron();
+		wp_schedule_event(time(), 'hourly', 'smq_sanity_checks');
+	}
+
+	/**
+	 * Gets called on plugin deactivation.
+	 */
+	public function onDeactivation()
+	{
+		// remove plugin from wp_cron
+		wp_clear_scheduled_hook('smq_sanity_checks');
+		wp_clear_scheduled_hook('smq_start_queue');
 	}
 
 	/**
@@ -144,22 +156,40 @@ class SMTPMailingQueue
 	}
 
 	/**
-	 * (Re)sets wp_cron, e.g. on activation and interval update.
+	 * (Re)sets wp_cron, e.g. on interval update.
+	 */
+	public function resetWpCron()
+	{
+		// Create shceduled hook before calling refresh to update next run delay (ex : New delay is sooner)
+		wp_clear_scheduled_hook('smq_start_queue');
+		$this->refreshWpCron();
+	}
+	
+	/**
+	 * Refresh wpCron to ensure that queued hook is always here.
+	 
 	 */
 	public function refreshWpCron()
 	{
-		if (wp_next_scheduled('smq_start_queue'))
+		$advanced = get_option('smtp_mailing_queue_advanced');
+		$advanced = is_array($advanced) ? $advanced : array();
+		
+		$dontUseWpcron = isset($advanced['dont_use_wpcron']) ? $advanced['dont_use_wpcron']: false;
+		
+		if ($dontUseWpcron) {
 			wp_clear_scheduled_hook('smq_start_queue');
-		wp_schedule_event(time(), 'smq', 'smq_start_queue');
+		} else {
+			if (!wp_next_scheduled('smq_start_queue'))
+				wp_schedule_event(time(), 'smq', 'smq_start_queue');
+		}
 	}
 
 	/**
-	 * Gets called on plugin deactivation.
+	 * Function to check plugin sanity
 	 */
-	public function onDeactivation()
+	public function doSanityChecks()
 	{
-		// remove plugin from wp_cron
-		wp_clear_scheduled_hook('smq_start_queue');
+		$this->refreshWpCron();
 	}
 
 	/**
@@ -180,12 +210,13 @@ class SMTPMailingQueue
 		if (!isset($currentMaxProcessingDelay) || $currentMaxProcessingDelay < $executionTime) {
 			set_transient('smtp_mailing_queue_max_processing_delay', $executionTime, 60*60*24);
 		}
-		
+
 		if (is_wp_error($response)) {
-			update_option('smtp_mailing_queue_notice', [
-				'class' => 'notice-error',
-				'message' => sprintf("SMTP Mailing Queue : Unable to call process queue due to following error '%s'", $response->get_error_message()),
-			]);
+			$notice = [
+				'class' => 'notice-warning',
+				'message' => sprintf("Error encountered while processing queue : '%s'", $response->get_error_message()),
+			];
+			set_transient('smtp_mailing_queue_processing_notice', $notice, 60*60*24);
 		}
 	}
 
