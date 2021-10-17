@@ -38,6 +38,9 @@ class SMTPMailingQueueUpdate
 
 			if (version_compare($installedVersion, '1.4.2', '<'))
 				$this->update_1_4_2();
+
+			if (version_compare($installedVersion, '1.4.4', '<'))
+				$this->update_1_4_4();
 		}
 
 		update_option('smq_version', $this->smtpMailingQueue->pluginVersion);
@@ -117,5 +120,13 @@ class SMTPMailingQueueUpdate
 		$advanced['sent_storage_size'] = $sentStorageSize;
 		
 		update_option('smtp_mailing_queue_advanced', $advanced);
+	}
+
+		/**
+	 * Version 1.4.4 register sanity checks hook on plugin update
+	 */
+	protected function update_1_4_4()
+	{
+		$this->smtpMailingQueue->scheduleSanityChecks();
 	}
 }

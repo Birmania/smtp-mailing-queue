@@ -18,7 +18,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.3';
+	public $pluginVersion = '1.4.4';
 
 	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
@@ -120,7 +120,7 @@ class SMTPMailingQueue
 	{
 		$this->setOptionsDefault();
 		$this->refreshWpCron();
-		wp_schedule_event(time(), 'hourly', 'smq_sanity_checks');
+		$this->scheduleSanityChecks();
 	}
 
 	/**
@@ -155,6 +155,12 @@ class SMTPMailingQueue
 		update_option('smtp_mailing_queue_advanced', array_merge($advancedDefault, $advanced));
 	}
 
+	public function scheduleSanityChecks()
+	{
+		if (!wp_next_scheduled('smq_sanity_checks'))
+			wp_schedule_event(time(), 'hourly', 'smq_sanity_checks');
+	}
+	
 	/**
 	 * (Re)sets wp_cron, e.g. on interval update.
 	 */
