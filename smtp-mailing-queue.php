@@ -4,7 +4,7 @@ Plugin Name: SMTP Mailing Queue
 Plugin URI: http://dennishildenbrand.com
 Description: SMTP Mailing Queue
 Author: Dennis Hildenbrand
-Version: 1.4.3
+Version: 1.4.4
 Author URI: http://dennishildenbrand.com
 Text Domain: smtp-mailing-queue
 */
