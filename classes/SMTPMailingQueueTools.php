@@ -220,10 +220,16 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @param array $data Testmail data
 	 */
 	protected function reallySendTestmail($data) {
+		add_action( 'wp_mail_failed', [$this, 'reallySendTestmailFailure']);
+
 		if($this->originalPluggeable->wp_mail($data['to'], $data['subject'], $data['message'], $data['headers']))
 			$this->showNotice(__('Mail successfully sent.', 'smtp-mailing-queue'), 'updated');
 		else
 			$this->showNotice(__('Error sending mail', 'smtp-mailing-queue'));
+	}
+
+	public function reallySendTestmailFailure($wp_error) {;
+		$this->showNotice(sprintf(__("Error detail while sending mail : '%s'", 'smtp-mailing-queue'), $wp_error->get_error_message()));
 	}
 
 	/**

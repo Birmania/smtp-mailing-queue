@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: SMTP Mailing Queue\n"
-"POT-Creation-Date: 2021-10-17 17:46+0200\n"
-"PO-Revision-Date: 2021-10-17 17:46+0200\n"
+"POT-Creation-Date: 2021-11-13 14:23+0100\n"
+"PO-Revision-Date: 2021-11-13 14:31+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -24,7 +24,12 @@ msgstr ""
 msgid "Donate"
 msgstr "Faire un don"
 
-#: classes/SMTPMailingQueue.php:285
+#: classes/SMTPMailingQueue.php:223
+#, php-format
+msgid "Error encountered while processing queue : '%s'"
+msgstr "Erreur rencontrée lors du traitement de la file d'attente : '%s'"
+
+#: classes/SMTPMailingQueue.php:291
 msgid "Interval for sending mail"
 msgstr "Intervalle d'envoi de courrier"
 
@@ -372,7 +377,7 @@ msgstr "Ne pas attendre le cronjob"
 msgid "Send directly without waiting for cronjob to process queue"
 msgstr "Envoyer directement sans attendre que cronjob traite la file d'attente"
 
-#: classes/SMTPMailingQueueTools.php:169 classes/SMTPMailingQueueTools.php:247
+#: classes/SMTPMailingQueueTools.php:169 classes/SMTPMailingQueueTools.php:253
 msgid "Looks like you're not allowed to do this"
 msgstr "On dirait que tu n'es pas autorisé à faire ça"
 
@@ -396,15 +401,20 @@ msgstr "Fichier du mail créé. Il sera envoyé quand cronjob sera exécuté"
 msgid "Error writing mail data to file"
 msgstr "Erreur lors de l'écriture des données de courrier dans un fichier"
 
-#: classes/SMTPMailingQueueTools.php:224
+#: classes/SMTPMailingQueueTools.php:226
 msgid "Mail successfully sent."
 msgstr "Mail envoyé avec succès."
 
-#: classes/SMTPMailingQueueTools.php:226
+#: classes/SMTPMailingQueueTools.php:228
 msgid "Error sending mail"
 msgstr "Erreur lors de l’envoi de mail"
 
-#: classes/SMTPMailingQueueTools.php:253
+#: classes/SMTPMailingQueueTools.php:232
+#, php-format
+msgid "Error detail while sending mail : '%s'"
+msgstr "Détail de l'erreur lors de l'envoi du courrier : '%s'"
+
+#: classes/SMTPMailingQueueTools.php:259
 msgid "Emails sent"
 msgstr "Courriel envoyés"
 

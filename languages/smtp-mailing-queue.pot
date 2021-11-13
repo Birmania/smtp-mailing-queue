@@ -3,10 +3,10 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: SMTP Mailing Queue 1.4.4\n"
+"Project-Id-Version: SMTP Mailing Queue 1.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/smtp-mailing-"
 "queue\n"
-"POT-Creation-Date: 2021-10-17 17:46+0200\n"
+"POT-Creation-Date: 2021-11-13 14:23+0100\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -23,7 +23,12 @@ msgstr ""
 msgid "Donate"
 msgstr ""
 
-#: classes/SMTPMailingQueue.php:285
+#: classes/SMTPMailingQueue.php:223
+#, php-format
+msgid "Error encountered while processing queue : '%s'"
+msgstr ""
+
+#: classes/SMTPMailingQueue.php:291
 msgid "Interval for sending mail"
 msgstr ""
 
@@ -354,7 +359,7 @@ msgstr ""
 msgid "Send directly without waiting for cronjob to process queue"
 msgstr ""
 
-#: classes/SMTPMailingQueueTools.php:169 classes/SMTPMailingQueueTools.php:247
+#: classes/SMTPMailingQueueTools.php:169 classes/SMTPMailingQueueTools.php:253
 msgid "Looks like you're not allowed to do this"
 msgstr ""
 
@@ -378,15 +383,20 @@ msgstr ""
 msgid "Error writing mail data to file"
 msgstr ""
 
-#: classes/SMTPMailingQueueTools.php:224
+#: classes/SMTPMailingQueueTools.php:226
 msgid "Mail successfully sent."
 msgstr ""
 
-#: classes/SMTPMailingQueueTools.php:226
+#: classes/SMTPMailingQueueTools.php:228
 msgid "Error sending mail"
 msgstr ""
 
-#: classes/SMTPMailingQueueTools.php:253
+#: classes/SMTPMailingQueueTools.php:232
+#, php-format
+msgid "Error detail while sending mail : '%s'"
+msgstr ""
+
+#: classes/SMTPMailingQueueTools.php:259
 msgid "Emails sent"
 msgstr ""
 
