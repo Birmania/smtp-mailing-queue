@@ -18,7 +18,7 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.4';
+	public $pluginVersion = '1.4.5';
 
 	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
 	{
@@ -220,7 +220,7 @@ class SMTPMailingQueue
 		if (is_wp_error($response)) {
 			$notice = [
 				'class' => 'notice-warning',
-				'message' => sprintf("Error encountered while processing queue : '%s'", $response->get_error_message()),
+				'message' => sprintf(__("Error encountered while processing queue : '%s'", "smtp-mailing-queue"), $response->get_error_message()),
 			];
 			set_transient('smtp_mailing_queue_processing_notice', $notice, 60*60*24);
 		}
