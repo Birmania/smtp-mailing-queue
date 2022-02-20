@@ -60,6 +60,9 @@ class SMTPMailingQueue
 		// Hooks
 		register_activation_hook($this->pluginFile, [$this, 'onActivation']);
 		register_deactivation_hook($this->pluginFile, [$this, 'onDeactivation']);
+		
+		// Always reschedule sanity check as some users experimented random missing wp cron event
+		$this->scheduleSanityChecks();
 
 		// Filter
 		add_filter('plugin_action_links_' . plugin_basename($this->pluginFile), [$this, 'addActionLinksToPluginPage']);
@@ -120,7 +123,6 @@ class SMTPMailingQueue
 	{
 		$this->setOptionsDefault();
 		$this->refreshWpCron();
-		$this->scheduleSanityChecks();
 	}
 
 	/**
@@ -166,7 +168,7 @@ class SMTPMailingQueue
 	 */
 	public function resetWpCron()
 	{
-		// Create shceduled hook before calling refresh to update next run delay (ex : New delay is sooner)
+		// Clear existing queue processing scheduled event and trigger refresh that will resolve the missing event
 		wp_clear_scheduled_hook('smq_start_queue');
 		$this->refreshWpCron();
 	}
@@ -557,34 +559,36 @@ class SMTPMailingQueue
 		if (!$options)
 			return;
 
-		if (empty($options['host']))
-			return;
-
-		// Set mailer to SMTP
-		$phpmailer->isSMTP();
-
-//		$phpmailer->SMTPDebug = 1;
-
 		// Set sender info
-		$phpmailer->From = $options['from_email'];
-		$phpmailer->FromName = $options['from_name'];
-
-		// Set encryption type
-		$phpmailer->SMTPSecure = $options['encryption'];
-
+		if (!empty($options['from_email'])) {
+			$phpmailer->From = $options['from_email'];
+		}
+		if (!empty($options['from_name'])) {
+			$phpmailer->FromName = $options['from_name'];
+		}
 		// Set host
-		$phpmailer->Host = $options['host'];
-		$phpmailer->Port = $options['port'] ? $options['port'] : 25;
-
-		// todo: fix me
-		// temporary hard coded fix. should be a setting (and should be logged in case of timeout)
-		$phpmailer->Timeout = 30;
-
-		// Set authentication data
-		if (isset($options['use_authentication'])) {
-			$phpmailer->SMTPAuth = TRUE;
-			$phpmailer->Username = $options['auth_username'];
-			$phpmailer->Password = $this->decrypt($options['auth_password']);
+		if (!empty($options['host'])) {
+			// Set mailer to SMTP
+			$phpmailer->isSMTP();
+			
+			//		$phpmailer->SMTPDebug = 1;
+			
+			// Set encryption type
+			$phpmailer->SMTPSecure = $options['encryption'];
+			
+			$phpmailer->Host = $options['host'];
+			$phpmailer->Port = $options['port'] ? $options['port'] : 25;
+			
+			// todo: fix me
+			// temporary hard coded fix. should be a setting (and should be logged in case of timeout)
+			$phpmailer->Timeout = 30;
+			
+			// Set authentication data
+			if (isset($options['use_authentication'])) {
+				$phpmailer->SMTPAuth = TRUE;
+				$phpmailer->Username = $options['auth_username'];
+				$phpmailer->Password = $this->decrypt($options['auth_password']);
+			}
 		}
 	}
 
