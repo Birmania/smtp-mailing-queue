@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.7.1
-Stable tag: 1.4.6
+Stable tag: 1.4.7
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,10 @@ Sure, here are the donation links of top contributors :
 4. Supervisors
 
 == Changelog ==
+
+= 1.4.7 =
+* Bugfix : In SMTP Settings, "From Email" and "From Name" are now used as soon as they are not empty, even if "Host value" is empty
+* Bugfix : Schedule "smq_sanity_checks" on every plugin construct to avoid missing cronjob
 
 = 1.4.6 =
 * Bugfix : Fix a member call on 'null' when using the plugin from WP-CLI (Thanks @cvl01)
