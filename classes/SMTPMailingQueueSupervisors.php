@@ -47,6 +47,24 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 	}
 
 	/**
+		* Utility method to get beautiful headers display
+		*/
+	private static function formatHeaders($headers) {
+		$rval = '';
+
+		if (is_array($headers)) {
+			foreach($headers as $item) {
+				$rval .= htmlspecialchars($item ?: '').'<br />';
+			}
+			$rval = rtrim($rval, '<br />');
+		} else {
+			$rval = htmlspecialchars($headers);
+		}
+
+		return $rval;
+	}
+
+	/**
 	 * Prints tab header
 	 */
 	public function loadPageContent() {
@@ -222,7 +240,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 					<td><?php echo $mail['to'] ?></td>
 					<td><?php echo $mail['subject'] ?></td>
 					<td><?php echo nl2br($mail['message']) ?></td>
-					<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
+					<td><?php echo self::formatHeaders($mail['headers']); ?></td>
 					<td><?php echo implode('<br />', $mail['attachments']); ?></td>
 					<td><?php echo $mail['failures'] ?></td>
 				</tr>
@@ -278,7 +296,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 						<td><?php echo $mail['to'] ?></td>
 						<td><?php echo $mail['subject'] ?></td>
 						<td><?php echo nl2br($mail['message']) ?></td>
-						<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
+						<td><?php echo self::formatHeaders($mail['headers']); ?></td>
 						<td><?php echo implode('<br />', $mail['attachments']); ?></td>
 						<td><?php echo $mail['failures'] ?></td>
 					</tr>
@@ -354,7 +372,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 						<td><?php echo $mail['to'] ?></td>
 						<td><?php echo $mail['subject'] ?></td>
 						<td><?php echo nl2br($mail['message']) ?></td>
-						<td><?php echo is_array($mail['headers']) ?  implode('<br />', $mail['headers']) : $mail['headers']; ?></td>
+						<td><?php echo self::formatHeaders($mail['headers']); ?></td>
 						<td><?php echo implode('<br />', $mail['attachments']); ?></td>
 						<td><?php echo $mail['failures'] ?></td>
 						<td><?php echo $dtSent->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>

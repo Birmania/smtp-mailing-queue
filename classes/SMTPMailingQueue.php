@@ -18,9 +18,9 @@ class SMTPMailingQueue
 	/**
 	 * @var string
 	 */
-	public $pluginVersion = '1.4.7';
+	public $pluginVersion = '2.0.0';
 
-	public function __construct($pluginFile = null, OriginalPluggeable $originalPluggeable)
+	public function __construct($pluginFile, OriginalPluggeable $originalPluggeable)
 	{
 		if ($pluginFile)
 			$this->pluginFile = $pluginFile;
@@ -65,6 +65,8 @@ class SMTPMailingQueue
 		$this->scheduleSanityChecks();
 
 		// Filter
+		add_filter('wp_mail_from', [$this, 'initFrom']);
+		add_filter('wp_mail_from_name', [$this, 'initFromName']);
 		add_filter('plugin_action_links_' . plugin_basename($this->pluginFile), [$this, 'addActionLinksToPluginPage']);
 		add_filter('plugin_row_meta', [$this, 'addDonateLinkToPluginPage'], 10, 2);
 		add_filter('cron_schedules', [$this, 'addWpCronInterval']);
@@ -321,6 +323,206 @@ class SMTPMailingQueue
 			return $this->originalPluggeable->wp_mail($to, $subject, $message, $headers, $attachments);
 		}
 	}
+	
+	/**
+	 * Run $callback with the $handler disabled for the $hook action/filter
+	 * Thanks @rodruiz (https://gist.github.com/westonruter/6647252?permalink_comment_id=2668616#gistcomment-2668616)
+	 * @param string $hooks filter names
+	 * @param callable $callback function execited while filter disabled 
+	 * @return mixed value returned by $callback
+	 */
+	private static function withoutFilters( $hooks, $callback ) {
+		global $wp_filter;
+		
+		$wp_hooks = array();
+		foreach ( (array) $hooks as $hook ) {
+			// Remove and cache the filter
+			if ( isset( $wp_filter[ $hook ] ) && $wp_filter[ $hook ] instanceof WP_Hook ) {
+				$wp_hooks[$hook] = $wp_filter[ $hook ];
+				unset( $wp_filter[ $hook ] );
+			}
+		}
+		
+		$retval = call_user_func( $callback );
+		
+		foreach ( (array) $wp_hooks as $hook => $wp_hook ) {
+			// Add back the filter
+			if ( $wp_hook instanceof WP_Hook  ) {
+				$wp_filter[ $hook ] = $wp_hook;
+			}
+		}
+		return $retval;
+	}
+	
+	/**
+	 * Some plugins are vicious in the way they set some headers through temporary wp_filters.
+	 * Due to this, we should apply filters on wp_mail call and inhibit them on real wp_mail call.
+	 * 
+	 * Note : This method is heavily inspired from original pluggeable wp_mail.
+	 *
+	 * @return array
+	 */
+	private static function resolveHeaders( $headers = '' ) {
+		// Headers.
+		if ( empty( $headers ) ) {
+			$headers = array();
+		} else {
+			if ( ! is_array( $headers ) ) {
+				// Explode the headers out, so this function can take
+				// both string headers and an array of headers.
+				$tempheaders = explode( "\n", str_replace( "\r\n", "\n", $headers ) );
+			} else {
+				$tempheaders = $headers;
+			}
+			$headers = array();
+
+			// If it's actually got contents.
+			if ( ! empty( $tempheaders ) ) {
+				// Iterate through the raw headers.
+				foreach ( (array) $tempheaders as $header ) {
+					if ( strpos( $header, ':' ) === false ) {
+						if ( false !== stripos( $header, 'boundary=' ) ) {
+							$parts    = preg_split( '/boundary=/i', trim( $header ) );
+							$boundary = trim( str_replace( array( "'", '"' ), '', $parts[1] ) );
+						}
+						continue;
+					}
+					// Explode them out.
+					list( $name, $content ) = explode( ':', trim( $header ), 2 );
+
+					// Cleanup crew.
+					$name    = trim( $name );
+					$content = trim( $content );
+
+					switch ( strtolower( $name ) ) {
+						// Mainly for legacy -- process a "From:" header if it's there.
+						case 'from':
+							$bracket_pos = strpos( $content, '<' );
+							if ( false !== $bracket_pos ) {
+								// Text before the bracketed email is the "From" name.
+								if ( $bracket_pos > 0 ) {
+									$from_name = substr( $content, 0, $bracket_pos - 1 );
+									$from_name = str_replace( '"', '', $from_name );
+									$from_name = trim( $from_name );
+								}
+
+								$from_email = substr( $content, $bracket_pos + 1 );
+								$from_email = str_replace( '>', '', $from_email );
+								$from_email = trim( $from_email );
+
+								// Avoid setting an empty $from_email.
+							} elseif ( '' !== trim( $content ) ) {
+								$from_email = trim( $content );
+							}
+							break;
+						case 'content-type':
+							if ( strpos( $content, ';' ) !== false ) {
+								list( $type, $charset_content ) = explode( ';', $content );
+								$content_type                   = trim( $type );
+								if ( false !== stripos( $charset_content, 'charset=' ) ) {
+									$charset = trim( str_replace( array( 'charset=', '"' ), '', $charset_content ) );
+								} elseif ( false !== stripos( $charset_content, 'boundary=' ) ) {
+									$boundary = trim( str_replace( array( 'BOUNDARY=', 'boundary=', '"' ), '', $charset_content ) );
+									$charset  = '';
+								}
+
+								// Avoid setting an empty $content_type.
+							} elseif ( '' !== trim( $content ) ) {
+								$content_type = trim( $content );
+							}
+							break;
+						default:
+							// Add it to our grand headers array.
+							$headers[] = $header;
+							break;
+					}
+				}
+			}
+		}
+
+		// Set "From" name and email.
+
+		// If we don't have a name from the input headers.
+		if ( ! isset( $from_name ) ) {
+			$from_name = 'WordPress';
+		}
+
+		/*
+		 * If we don't have an email from the input headers, default to wordpress@$sitename
+		 * Some hosts will block outgoing mail from this address if it doesn't exist,
+		 * but there's no easy alternative. Defaulting to admin_email might appear to be
+		 * another option, but some hosts may refuse to relay mail from an unknown domain.
+		 * See https://core.trac.wordpress.org/ticket/5007.
+		 */
+		if ( ! isset( $from_email ) ) {
+			// Get the site domain and get rid of www.
+			$sitename = wp_parse_url( network_home_url(), PHP_URL_HOST );
+			if ( 'www.' === substr( $sitename, 0, 4 ) ) {
+				$sitename = substr( $sitename, 4 );
+			}
+
+			$from_email = 'wordpress@' . $sitename;
+		}
+
+		/**
+		 * Filters the email address to send from.
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param string $from_email Email address to send from.
+		 */
+		$from_email = apply_filters( 'wp_mail_from', $from_email );
+
+		/**
+		 * Filters the name to associate with the "from" email address.
+		 *
+		 * @since 2.3.0
+		 *
+		 * @param string $from_name Name associated with the "from" email address.
+		 */
+		$from_name = apply_filters( 'wp_mail_from_name', $from_name );
+
+		// Set Content-Type and charset.
+
+		// If we don't have a content-type from the input headers.
+		if ( ! isset( $content_type ) ) {
+			$content_type = 'text/plain';
+		}
+
+		$content_type = apply_filters( 'wp_mail_content_type', $content_type );
+
+		// If we don't have a charset from the input headers.
+		if ( ! isset( $charset ) ) {
+			$charset = get_bloginfo( 'charset' );
+		}
+
+		$charset = apply_filters( 'wp_mail_charset', $charset );
+		
+		// Rebuild headers
+		if ( isset( $content_type ) ) {
+			$concrete_content_type = sprintf("%s; ", $content_type);
+			
+			if ( isset( $charset ) ) {
+				$concrete_content_type .= sprintf('%s; ', $charset);
+			}
+			
+			if ( isset($boundary) ) {
+				$concrete_content_type .= sprintf('boundary="%s; "', $boundary);
+			}
+			
+			$headers[] = sprintf('Content-Type: %s', $concrete_content_type);
+		}
+
+		if (isset($from_name)) {
+			$concrete_from = sprintf("%s <%s>", $from_name, $from_email);
+		} else {
+			$concrete_from = sprintf("%s", $from_email);
+		}
+		$headers[] = sprintf('From: %s', $concrete_from);
+
+		return $headers;
+	}
+	
 
 	/**
 	 * Writes mail data to json file.
@@ -337,6 +539,20 @@ class SMTPMailingQueue
 	public static function storeMail($to, $subject, $message, $headers = '', $attachments = array(), $time = null)
 	{
 		require_once __DIR__ . '/PHPMailer/class-phpmailer.php';
+
+		// Do wp_mail filters here as some plugins set filters only during wp_mail send code execution
+		$atts = apply_filters( 'wp_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) );
+		$pre_wp_mail = apply_filters( 'pre_wp_mail', null, $atts );
+
+		if ( null !== $pre_wp_mail ) {
+			return $pre_wp_mail;
+		}
+
+		$to = $atts['to'];
+		$subject = $atts['subject'];
+		$message = $atts['message'];
+		$headers = self::resolveHeaders($atts['headers']);
+		$attachments = $atts['attachments'];
 
 		// Store attachments
 		require_once('SMTPMailingQueueAttachments.php');
@@ -485,7 +701,13 @@ class SMTPMailingQueue
 	 */
 	public function sendMail($data)
 	{
-		return wp_mail($data['to'], $data['subject'], $data['message'], $data['headers'], $data['attachments']);
+		// Filters have already been applied before storing the file so we should disable all them
+		return $this->withoutFilters(
+			['wp_mail', 'pre_wp_mail', 'wp_mail_from', 'wp_mail_from_name', 'wp_mail_content_type', 'wp_mail_charset'],
+			function () use ($data) {
+				return wp_mail($data['to'], $data['subject'], $data['message'], $data['headers'], $data['attachments']);
+			}
+		);
 	}
 
 	/**
@@ -546,6 +768,30 @@ class SMTPMailingQueue
 	{
 		unlink($file);
 	}
+	
+	/**
+	 * Init from mail using filter as phpmailer_init occured after wp checks
+	 */
+	public function initFrom($from) {
+		$options = get_option('smtp_mailing_queue_options');
+		
+		if (!$options || empty($options['from_email']))
+			return $from;
+
+		return $options['from_email'];
+	}
+	
+	/**
+	 * Init from name using filter as phpmailer_init occured after wp checks
+	 */
+	public function initFromName($fromName) {
+		$options = get_option('smtp_mailing_queue_options');
+		
+		if (!$options || empty($options['from_name']))
+			return $fromName;
+
+		return $options['from_name'];
+	}
 
 	/**
 	 * Sets WordPress phpmailer to SMTP and sets all options.
@@ -559,13 +805,6 @@ class SMTPMailingQueue
 		if (!$options)
 			return;
 
-		// Set sender info
-		if (!empty($options['from_email'])) {
-			$phpmailer->From = $options['from_email'];
-		}
-		if (!empty($options['from_name'])) {
-			$phpmailer->FromName = $options['from_name'];
-		}
 		// Set host
 		if (!empty($options['host'])) {
 			// Set mailer to SMTP

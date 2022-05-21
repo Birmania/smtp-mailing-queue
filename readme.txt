@@ -3,8 +3,8 @@ Contributors: hildende, birmania
 Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
-Tested up to: 5.7.1
-Stable tag: 1.4.7
+Tested up to: 5.9.3
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,13 @@ Sure, here are the donation links of top contributors :
 4. Supervisors
 
 == Changelog ==
+
+= 2.0.0 =
+* Bugfix : 'wp_mail' filters are now immediately executed on call instead of being delayed to real email sending
+* Bugfix : Removed an error that could occurs on 'localhost' development environent using custom value for From/Email in options
+* Bugfix : Fixed a deprecated on optional 'pluginFile' field in SMTPMailingQueue constructor
+* Bugfix : Strip Wordpress magic quotes on test email form
+* Bugfix : Better email headers formatting in supervisor tables 
 
 = 1.4.7 =
 * Bugfix : In SMTP Settings, "From Email" and "From Name" are now used as soon as they are not empty, even if "Host value" is empty
