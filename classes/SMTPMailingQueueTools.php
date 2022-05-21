@@ -169,7 +169,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 			$this->showNotice(__('Looks like you\'re not allowed to do this', 'smtp-mailing-queue'));
 			return;
 		}
-		$data = $_POST['smq-test_mail'];
+		$data = stripslashes_deep($_POST['smq-test_mail']);
 
 		$error = false;
 		if(empty($data['to'])) {
@@ -209,7 +209,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 */
 	protected function writeTestmailToFile($data) {
 		if(wp_mail( $data['to'], $data['subject'], $data['message'], $data['headers']))
-			$this->showNotice(__('Mail file created. Will be sent when cronjob runs', 'updated', 'smtp-mailing-queue'));
+			$this->showNotice(__('Mail file created. Will be sent when cronjob runs', 'smtp-mailing-queue'), 'updated');
 		else
 			$this->showNotice(__('Error writing mail data to file', 'smtp-mailing-queue'));
 	}
