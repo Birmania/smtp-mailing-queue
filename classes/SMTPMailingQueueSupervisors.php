@@ -47,21 +47,21 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 	}
 
 	/**
-		* Utility method to get beautiful headers display
+		* Utility method to get beautiful value display
 		*/
-	private static function formatHeaders($headers) {
+	private static function formatValue($value) {
 		$rval = '';
 
-		if (is_array($headers)) {
-			foreach($headers as $item) {
-				$rval .= htmlspecialchars($item ?: '').'<br />';
+		if (is_array($value)) {
+			foreach($value as $item) {
+				$rval .= esc_html($item ?: '').'<br />';
 			}
 			$rval = rtrim($rval, '<br />');
 		} else {
-			$rval = htmlspecialchars($headers);
+			$rval = esc_html($value);
 		}
 
-		return $rval;
+		return nl2br($rval);
 	}
 
 	/**
@@ -102,7 +102,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 			</a>
 		</h3>
 		<?php
-		
+
 		switch($this->activeSupervisor) {
 			case 'processing':
 				$this->createProcessing();
@@ -127,7 +127,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 		if ($processingNotice) {
 			printf('<div class="notice %1$s"><p>%2$s</p></div>', esc_attr($processingNotice['class']), esc_html($processingNotice['message']));
 		}
-		
+
 		?>
 		<ul>
 			<li>
@@ -152,7 +152,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 			$this->smtpMailingQueue->deleteMail($file);
 		}
 	}
-	
+
 	/**
 	 * Purge all sent mails
 	 */
@@ -162,7 +162,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 			$this->smtpMailingQueue->deleteMail($file);
 		}
 	}
-	
+
 	/**
 	 * Execute action on all selected mails
 	 */
@@ -237,11 +237,11 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 				?>
 				<tr class="<?php echo ($i % 2) ? 'alternate' : ''; ?>">
 					<td><?php echo $dtCreated->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>
-					<td><?php echo $mail['to'] ?></td>
-					<td><?php echo $mail['subject'] ?></td>
-					<td><?php echo nl2br($mail['message']) ?></td>
-					<td><?php echo self::formatHeaders($mail['headers']); ?></td>
-					<td><?php echo implode('<br />', $mail['attachments']); ?></td>
+					<td><?php echo self::formatValue($mail['to']); ?></td>
+					<td><?php echo self::formatValue($mail['subject']); ?></td>
+					<td><?php echo self::formatValue($mail['message']); ?></td>
+					<td><?php echo self::formatValue($mail['headers']); ?></td>
+					<td><?php echo self::formatValue($mail['attachments']); ?></td>
 					<td><?php echo $mail['failures'] ?></td>
 				</tr>
 				<?php $i++; ?>
@@ -293,11 +293,11 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 					<tr class="<?php echo ($i % 2) ? 'alternate' : ''; ?>">
 						<td><input class="smq-select_option" type="checkbox" name="mails[]" value="<?php echo basename($filename) ?>"/></td>
 						<td><?php echo $dtCreated->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>
-						<td><?php echo $mail['to'] ?></td>
-						<td><?php echo $mail['subject'] ?></td>
-						<td><?php echo nl2br($mail['message']) ?></td>
-						<td><?php echo self::formatHeaders($mail['headers']); ?></td>
-						<td><?php echo implode('<br />', $mail['attachments']); ?></td>
+						<td><?php echo self::formatValue($mail['to']); ?></td>
+						<td><?php echo self::formatValue($mail['subject']); ?></td>
+						<td><?php echo self::formatValue($mail['message']); ?></td>
+						<td><?php echo self::formatValue($mail['headers']); ?></td>
+						<td><?php echo self::formatValue($mail['attachments']); ?></td>
 						<td><?php echo $mail['failures'] ?></td>
 					</tr>
 					<?php $i++; ?>
@@ -308,7 +308,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 		</form>
 		<?php
 	}
-	
+
 	/**
 	 * Prints form for purging invalid mails
 	 */
@@ -323,7 +323,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 		</form>
 		<?php
 	}
-	
+
 		/**
 	 * Prints table with mailing queue
 	 *
@@ -369,11 +369,11 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 					<tr class="<?php echo ($i % 2) ? 'alternate' : ''; ?>">
 						<td><input class="smq-select_option" type="checkbox" name="mails[]" value="<?php echo basename($filename) ?>"/></td>
 						<td><?php echo $dtCreated->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>
-						<td><?php echo $mail['to'] ?></td>
-						<td><?php echo $mail['subject'] ?></td>
-						<td><?php echo nl2br($mail['message']) ?></td>
-						<td><?php echo self::formatHeaders($mail['headers']); ?></td>
-						<td><?php echo implode('<br />', $mail['attachments']); ?></td>
+						<td><?php echo self::formatValue($mail['to']); ?></td>
+						<td><?php echo self::formatValue($mail['subject']); ?></td>
+						<td><?php echo self::formatValue($mail['message']); ?></td>
+						<td><?php echo self::formatValue($mail['headers']); ?></td>
+						<td><?php echo self::formatValue($mail['attachments']); ?></td>
 						<td><?php echo $mail['failures'] ?></td>
 						<td><?php echo $dtSent->format(__('F dS Y, H:i', 'smtp-mailing-queue')) ?></td>
 					</tr>
@@ -400,7 +400,7 @@ class SMTPMailingQueueSupervisors extends SMTPMailingQueueAdmin {
 		</form>
 		<?php
 	}
-	
+
 	/**
 	 * Finds valid timezone for timezone_string setting in wp
 	 *
