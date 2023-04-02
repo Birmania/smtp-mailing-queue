@@ -7,7 +7,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 	 * @var SMTPMailingQueue
 	 */
 	private $smtpMailingQueue;
-	
+
 	/**
 	 * @var Object used  to call original pluggeable methods
 	 */
@@ -98,14 +98,14 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<th scope="row"><?php _e('To email address', 'smtp-mailing-queue') ?></th>
 					<td>
 						<input type="text" name="smq-test_mail[to]" class="regular-text code"
-						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['to']) ? $_POST['smq-test_mail']['to'] : '' ) ?>"/>
+						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['to']) ? stripslashes(esc_attr($_POST['smq-test_mail']['to'])) : '' ) ?>"/>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e('Cc email addresses', 'smtp-mailing-queue') ?></th>
 					<td>
 						<input type="text" name="smq-test_mail[cc]" class="regular-text code"
-						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['cc']) ? $_POST['smq-test_mail']['cc'] : '' ) ?>"/>
+						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['cc']) ? stripslashes(esc_attr($_POST['smq-test_mail']['cc'])) : '' ) ?>"/>
 						<p class="description"><?php _e('Multiple addresses can be added separated by comma.', 'smtp-mailing-queue') ?></p>
 					</td>
 				</tr>
@@ -113,7 +113,7 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<th scope="row"><?php _e('Bcc email addresses', 'smtp-mailing-queue') ?></th>
 					<td>
 						<input type="text" name="smq-test_mail[bcc]" class="regular-text code"
-						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['bcc']) ? $_POST['smq-test_mail']['bcc'] : '' ) ?>"/>
+						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['bcc']) ? stripslashes(esc_attr($_POST['smq-test_mail']['bcc'])) : '' ) ?>"/>
 						<p class="description"><?php _e('Multiple addresses can be added separated by comma.', 'smtp-mailing-queue') ?></p>
 					</td>
 				</tr>
@@ -121,19 +121,19 @@ class SMTPMailingQueueTools extends SMTPMailingQueueAdmin {
 					<th scope="row"><?php _e('Subject', 'smtp-mailing-queue') ?></th>
 					<td>
 						<input type="text" name="smq-test_mail[subject]" class="regular-text code"
-						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['subject']) ? $_POST['smq-test_mail']['subject'] : '' ) ?>"/>
+						       value="<?php echo ($this->prefill && isset($_POST['smq-test_mail']['subject']) ? stripslashes(esc_attr($_POST['smq-test_mail']['subject'])) : '' ) ?>"/>
 					</td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><?php _e('Message', 'smtp-mailing-queue') ?></th>
 					<td>
-						<textarea name="smq-test_mail[message]" class="large-text code" rows="5"><?php echo ($this->prefill && isset($_POST['smq-test_mail']['message']) ? trim($_POST['smq-test_mail']['message']) : '' ) ?></textarea>
+						<textarea name="smq-test_mail[message]" class="large-text code" rows="5"><?php echo ($this->prefill && isset($_POST['smq-test_mail']['message']) ? stripslashes(esc_attr($_POST['smq-test_mail']['message'])) : '' ) ?></textarea>
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><?php _e("Don't wait for cronjob", 'smtp-mailing-queue') ?></th>
 					<td>
-						<input type="checkbox" name="smq-test_mail[dont_wait]" id="dont_wait" value="1" <?php echo ($this->prefill && isset($_POST['smq-test_mail']['dont_wait']) ? 'checked="chencked"' : '') ?>>
+						<input type="checkbox" name="smq-test_mail[dont_wait]" id="dont_wait" value="1" <?php echo ($this->prefill && isset($_POST['smq-test_mail']['dont_wait']) ? 'checked="checked"' : '') ?>>
 						<label for="dont_wait"><?php _e('Send directly without waiting for cronjob to process queue', 'smtp-mailing-queue') ?></label>
 					</td>
 				</tr>
