@@ -4,7 +4,7 @@ Tags: mail, smtp, phpmailer, mailing queue, wp_mail, email
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=KRBU2JDQUMWP4
 Requires at least: 3.9
 Tested up to: 5.9.3
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -134,6 +134,9 @@ Sure, here are the donation links of top contributors :
 4. Supervisors
 
 == Changelog ==
+
+= 2.0.1 =
+* Security : Escape some values display to avoid XSS in Admin "Tools" and "Supervisors" tabs
 
 = 2.0.0 =
 * Bugfix : 'wp_mail' filters are now immediately executed on call instead of being delayed to real email sending
